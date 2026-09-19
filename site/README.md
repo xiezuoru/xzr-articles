@@ -7,19 +7,25 @@
 
 ```
 xzr-articles/
+├── index.html                 # ★ 网站首页（仓库根目录，唯一源文件）
+├── reader.html                # ★ PDF 在线阅读器（PDF.js）
+├── config.js                  # ★ 配置：PDF_BASE 指向 R2 公开域名
 ├── 2003年度/ … 2026年度/      # 文章 PDF（按年份）
 ├── 中国信息技术教育-专栏文章-对话/ 等   # 文章 PDF（按专栏）
 └── site/
-    ├── build.py               # 索引构建脚本（扫描 PDF → articles.json + 缩略图）
+    ├── build.py               # 索引构建脚本（扫描 PDF → articles.json + 缩略图，并复制网页到 dist）
     ├── overrides.json         # 手动修正个别文章的元数据
     ├── deploy.sh              # 一键部署（构建 → 同步 R2 → 部署 Pages）
-    └── dist/                  # 网站本体（构建产物，勿手改）
-        ├── index.html         # 首页（卡片 + 列表 + 搜索筛选）
-        ├── reader.html        # PDF 在线阅读器（PDF.js）
-        ├── config.js          # 配置：PDF_BASE 指向 R2 公开域名
+    └── dist/                  # 部署产物（全部由 build.py 生成，勿手改、不进 git）
+        ├── index.html         # 由根目录复制而来
+        ├── reader.html        # 由根目录复制而来
+        ├── config.js          # 由根目录复制而来
         ├── articles.json      # 构建生成的文章索引
         └── thumbs/            # 构建生成的封面缩略图
 ```
+
+首页会自动识别自己所在位置：根目录访问时从 `site/dist/` 读数据，
+部署到 Pages 后（dist 内）从同目录读数据，同一份代码两处通用。
 
 ## 一次性初始化（约 10 分钟）
 
@@ -35,7 +41,7 @@ xzr-articles/
    wrangler r2 bucket create xzr-articles-pdf
    wrangler r2 bucket dev-url enable xzr-articles-pdf   # 得到 https://pub-xxxx.r2.dev
    ```
-   把得到的域名填进 `dist/config.js` 的 `PDF_BASE`（不要结尾斜杠）。
+   把得到的域名填进根目录 `config.js` 的 `PDF_BASE`（不要结尾斜杠）。
 
 3. **配置 R2 的 CORS**（允许 Pages 域名跨域加载 PDF）
    把下面的 JSON 存为 `cors.json`（域名换成你的 Pages 域名）：
@@ -72,9 +78,9 @@ xzr-articles/
 ## 本地预览
 
 ```bash
-cd xzr-articles 仓库根目录
+cd xzr-articles          # 仓库根目录
 python3 -m http.server 8000
-# 浏览器打开 http://localhost:8000/site/dist/
+# 浏览器打开 http://localhost:8000/ 即为网站首页
 ```
 
 ## 自定义域名（可选）

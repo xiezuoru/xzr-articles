@@ -125,16 +125,28 @@ footer{margin:46px 0 30px;text-align:center;color:var(--ink3);font-size:12.5px}
 const CFG = window.ARTICLES_CONFIG || {};
 const state = { q:"", year:"", mag:"", col:"", topic:"", view:"list", showAll:false };
 let DATA = [];
+// 数据目录：根目录访问时数据在 site/dist/，部署后（dist 内）数据就在同目录
+let DATA_BASE = "";
+let PDF_PREFIX = "";
 
 const $ = s => document.querySelector(s);
-const pdfUrl = a => (CFG.PDF_BASE ? CFG.PDF_BASE + "/" : "../../") + a.path.split("/").map(encodeURIComponent).join("/");
-const openReader = a => location.href = "reader.html?file=" + encodeURIComponent(pdfUrl(a)) + "&title=" + encodeURIComponent(a.title);
+const pdfUrl = a => (PDF_PREFIX || "") + a.path.split("/").map(encodeURIComponent).join("/");
+const readerUrl = a => DATA_BASE + "reader.html?file=" + encodeURIComponent(pdfUrl(a)) +
+  "&title=" + encodeURIComponent(a.title);
+const openReader = a => location.href = readerUrl(a);
+
+async function resolveBase(){
+  for (const b of ["", "site/dist/"]){
+    try { const r = await fetch(b + "articles.json", {method:"HEAD"}); if (r.ok) return b; } catch(e){}
+  }
+  return "";
+}
 
 function metaLine(a){
   return [a.year, a.issue, a.magazine].filter(Boolean).join(" · ");
 }
 function cardHTML(a){
-  const img = a.thumb ? `style="background-image:url('${a.thumb}')"` : "";
+  const img = a.thumb ? `style="background-image:url('${DATA_BASE}${a.thumb}')"` : "";
   return `<div class="card" data-id="${a.id}">
     <div class="thumb" ${img}>${a.thumb ? "" : "无封面"}</div>
     <div class="body"><div class="t">${a.title}</div><div class="m">${metaLine(a)}</div></div>
@@ -201,13 +213,25 @@ function fillFilters(){
   });
 }
 
-fetch("articles.json").then(r => r.json()).then(d => {
+(async function init(){
+  DATA_BASE = await resolveBase();
+  PDF_PREFIX = CFG.PDF_BASE
+    ? CFG.PDF_BASE.replace(/\/+$/, "") + "/"
+    : (DATA_BASE ? "../../" : "");
+  const DATA_URL = DATA_BASE + "articles.json";
+  let d;
+  try {
+    d = await (await fetch(DATA_URL)).json();
+  } catch (e) {
+    $("#subtitle").textContent = "文章索引加载失败，请先运行 site/build.py 生成索引";
+    return;
+  }
   DATA = d;
   const ys = DATA.map(a=>a.year).filter(Boolean);
   $("#subtitle").innerHTML =
     `历年发表文章 · 共 <b>${DATA.length}</b> 篇 · 自 <b>${Math.min(...ys)}</b> 年至 <b>${Math.max(...ys)}</b> 年 · 点击即可在线阅读`;
   fillFilters(); render();
-});
+})();
 
 $("#q").oninput = e => { state.q = e.target.value; render(); };
 $("#f-year").onchange = e => { state.year = e.target.value; render(); };

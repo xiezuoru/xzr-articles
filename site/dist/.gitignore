@@ -1,3 +1,6 @@
-# 构建产物，由 build.py 生成，不进 git
+# 构建产物，由 build.py 生成，不进 git（源文件在仓库根目录）
 articles.json
 thumbs/
+index.html
+reader.html
+config.js

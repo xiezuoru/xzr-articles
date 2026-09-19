@@ -16,6 +16,7 @@ xzr-articles 站点索引构建脚本
 import json
 import re
 import sys
+import shutil
 import hashlib
 from pathlib import Path
 
@@ -276,6 +277,15 @@ def main():
     out.sort(key=lambda x: (x["year"] or 0, x["title"]), reverse=True)
     (DIST / "articles.json").write_text(
         json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
+
+    # 网页源文件放在仓库根目录（访问根目录首页即可打开网站），
+    # 构建时复制进 dist，供 Cloudflare Pages 部署
+    for f in ("index.html", "reader.html", "config.js"):
+        src = ROOT / f
+        if src.exists():
+            shutil.copy2(src, DIST / f)
+        else:
+            print(f"警告：根目录缺少 {f}")
 
     n_merged = len(pdfs) - len(out)
     print(f"文章数：{len(out)}（合并了 {n_merged} 个同年重复文件）")
