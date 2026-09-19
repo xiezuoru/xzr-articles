@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>谢作如文集 · 历年发表文章</title>
+<script src="config.js"></script>
+<style>
+:root{
+  --bg:#f7f5f0; --surface:#ffffff; --ink:#2c2a26; --ink2:#6b675f; --ink3:#a39e93;
+  --line:#e6e2d9; --accent:#8c3b2e; --accent-soft:#f4e9e6; --chip:#efece5;
+  --serif:"Songti SC","STSong","Noto Serif SC",serif;
+  --sans:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+/* 头部 */
+header{background:var(--surface);border-bottom:1px solid var(--line);padding:36px 0 26px}
+header h1{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:2px}
+header .sub{color:var(--ink2);font-size:14px;margin-top:6px}
+header .sub b{color:var(--accent);font-weight:600}
+
+/* 工具栏 */
+.toolbar{position:sticky;top:0;z-index:20;background:var(--bg);padding:14px 0 10px;border-bottom:1px solid var(--line)}
+.search-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#q{flex:1;min-width:220px;padding:9px 14px;border:1px solid var(--line);border-radius:22px;background:var(--surface);font-size:14px;outline:none}
+#q:focus{border-color:var(--accent)}
+select{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:13px;color:var(--ink);outline:none}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip{padding:4px 12px;border-radius:16px;background:var(--chip);color:var(--ink2);font-size:13px;cursor:pointer;border:1px solid transparent;user-select:none}
+.chip.on{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.chip:hover{border-color:var(--ink3)}
+
+/* 区块标题 */
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;margin:30px 0 16px}
+.sec-head h2{font-family:var(--serif);font-size:20px;font-weight:600}
+.sec-head .more{font-size:13px;color:var(--accent);cursor:pointer}
+.sec-head .more:hover{text-decoration:underline}
+.count-tip{font-size:13px;color:var(--ink3)}
+
+/* 卡片墙 */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer;transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-3px);border-color:var(--accent)}
+.card .thumb{aspect-ratio:3/4;background:#e9e5dc center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:var(--ink3);font-size:12px}
+.card .body{padding:10px 12px 12px}
+.card .t{font-size:13.5px;font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.7em}
+.card .m{font-size:12px;color:var(--ink3);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* 列表 */
+.list{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.row{display:flex;align-items:center;gap:14px;padding:11px 16px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px}
+.row:last-child{border-bottom:none}
+.row:hover{background:#faf8f4}
+.row .yr{flex:0 0 46px;color:var(--accent);font-weight:600;font-size:13px}
+.row .ti{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .mg{flex:0 0 auto;color:var(--ink3);font-size:12.5px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .pg{flex:0 0 74px;text-align:right;color:var(--ink3);font-size:12.5px}
+
+.view-toggle{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.view-toggle button{padding:6px 12px;border:none;background:var(--surface);font-size:12.5px;color:var(--ink2);cursor:pointer}
+.view-toggle button.on{background:var(--accent);color:#fff}
+
+footer{margin:46px 0 30px;text-align:center;color:var(--ink3);font-size:12.5px}
+.empty{padding:60px 0;text-align:center;color:var(--ink3)}
+@media (max-width:640px){
+  header h1{font-size:24px}
+  .cards{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+  .row .mg{display:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>谢作如文集</h1>
+    <div class="sub" id="subtitle">历年发表文章 · 正在加载……</div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="wrap">
+    <div class="search-row">
+      <input id="q" type="search" placeholder="搜索标题、作者、刊物……">
+      <select id="f-year"><option value="">全部年份</option></select>
+      <select id="f-mag"><option value="">全部刊物</option></select>
+      <select id="f-col"><option value="">全部合集</option></select>
+      <div class="view-toggle">
+        <button id="v-card">卡片</button>
+        <button id="v-list" class="on">列表</button>
+      </div>
+    </div>
+    <div class="chips" id="topics"></div>
+  </div>
+</div>
+
+<main class="wrap">
+  <section id="latest-sec">
+    <div class="sec-head">
+      <h2>最新文章</h2>
+      <span class="more" id="show-all">查看全部 →</span>
+    </div>
+    <div class="cards" id="latest"></div>
+  </section>
+
+  <section id="all-sec" style="display:none">
+    <div class="sec-head">
+      <h2>全部文章 <span class="count-tip" id="count"></span></h2>
+    </div>
+    <div id="result-cards" class="cards" style="display:none"></div>
+    <div id="result-list" class="list"></div>
+  </section>
+
+  <div class="empty" id="empty" style="display:none">没有找到匹配的文章</div>
+</main>
+
+<footer>
+  <div class="wrap">谢作如文集 · 文章版权归原作者及发表刊物所有 · 本站仅供学习交流</div>
+</footer>
+
+<script>
+const CFG = window.ARTICLES_CONFIG || {};
+const state = { q:"", year:"", mag:"", col:"", topic:"", view:"list", showAll:false };
+let DATA = [];
+
+const $ = s => document.querySelector(s);
+const pdfUrl = a => (CFG.PDF_BASE ? CFG.PDF_BASE + "/" : "../../") + a.path.split("/").map(encodeURIComponent).join("/");
+const openReader = a => location.href = "reader.html?file=" + encodeURIComponent(pdfUrl(a)) + "&title=" + encodeURIComponent(a.title);
+
+function metaLine(a){
+  return [a.year, a.issue, a.magazine].filter(Boolean).join(" · ");
+}
+function cardHTML(a){
+  const img = a.thumb ? `style="background-image:url('${a.thumb}')"` : "";
+  return `<div class="card" data-id="${a.id}">
+    <div class="thumb" ${img}>${a.thumb ? "" : "无封面"}</div>
+    <div class="body"><div class="t">${a.title}</div><div class="m">${metaLine(a)}</div></div>
+  </div>`;
+}
+function rowHTML(a){
+  return `<div class="row" data-id="${a.id}">
+    <span class="yr">${a.year || "——"}</span>
+    <span class="ti">${a.title}${a.author && a.author !== "谢作如" ? " <span style='color:var(--ink3);font-size:12px'>（" + a.author + "）</span>" : ""}</span>
+    <span class="mg">${[a.magazine, a.issue].filter(Boolean).join(" · ")}</span>
+    <span class="pg">${a.pages ? a.pages + " 页" : ""}${a.size_mb ? " · " + a.size_mb + "M" : ""}</span>
+  </div>`;
+}
+
+function filtered(){
+  const q = state.q.trim().toLowerCase();
+  return DATA.filter(a => {
+    if (state.year && String(a.year) !== state.year) return false;
+    if (state.mag && a.magazine !== state.mag) return false;
+    if (state.col && !a.collections.includes(state.col)) return false;
+    if (state.topic && a.topic !== state.topic) return false;
+    if (q && !(a.title + (a.author||"") + (a.magazine||"")).toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+function render(){
+  const searching = state.q || state.year || state.mag || state.col || state.topic;
+  // 最新文章：仅在无筛选时显示
+  $("#latest-sec").style.display = searching ? "none" : "";
+  if (!searching){
+    $("#latest").innerHTML = DATA.slice(0, 12).map(cardHTML).join("");
+  }
+  const showAll = state.showAll || searching;
+  $("#all-sec").style.display = showAll ? "" : "none";
+  if (showAll){
+    const list = filtered();
+    $("#count").textContent = `共 ${list.length} 篇`;
+    $("#result-cards").style.display = state.view === "card" ? "" : "none";
+    $("#result-list").style.display = state.view === "list" ? "" : "none";
+    $("#result-cards").innerHTML = list.map(cardHTML).join("");
+    $("#result-list").innerHTML = list.map(rowHTML).join("");
+    $("#empty").style.display = list.length ? "none" : "";
+  } else {
+    $("#empty").style.display = "none";
+  }
+  document.querySelectorAll("[data-id]").forEach(el =>
+    el.onclick = () => openReader(DATA.find(a => a.id === el.dataset.id)));
+}
+
+function fillFilters(){
+  const years = [...new Set(DATA.map(a => a.year).filter(Boolean))].sort((x,y)=>y-x);
+  const mags = [...new Set(DATA.map(a => a.magazine).filter(Boolean))].sort();
+  const cols = [...new Set(DATA.flatMap(a => a.collections))].sort();
+  const topics = [...new Set(DATA.map(a => a.topic))].sort();
+  $("#f-year").innerHTML += years.map(y=>`<option>${y}</option>`).join("");
+  $("#f-mag").innerHTML += mags.map(m=>`<option>${m}</option>`).join("");
+  $("#f-col").innerHTML += cols.map(c=>`<option>${c}</option>`).join("");
+  $("#topics").innerHTML = `<span class="chip on" data-t="">全部主题</span>` +
+    topics.map(t=>`<span class="chip" data-t="${t}">${t}</span>`).join("");
+  document.querySelectorAll("#topics .chip").forEach(c => c.onclick = () => {
+    document.querySelectorAll("#topics .chip").forEach(x=>x.classList.remove("on"));
+    c.classList.add("on"); state.topic = c.dataset.t; render();
+  });
+}
+
+fetch("articles.json").then(r => r.json()).then(d => {
+  DATA = d;
+  const ys = DATA.map(a=>a.year).filter(Boolean);
+  $("#subtitle").innerHTML =
+    `历年发表文章 · 共 <b>${DATA.length}</b> 篇 · 自 <b>${Math.min(...ys)}</b> 年至 <b>${Math.max(...ys)}</b> 年 · 点击即可在线阅读`;
+  fillFilters(); render();
+});
+
+$("#q").oninput = e => { state.q = e.target.value; render(); };
+$("#f-year").onchange = e => { state.year = e.target.value; render(); };
+$("#f-mag").onchange = e => { state.mag = e.target.value; render(); };
+$("#f-col").onchange = e => { state.col = e.target.value; render(); };
+$("#v-card").onclick = () => { state.view = "card"; $("#v-card").classList.add("on"); $("#v-list").classList.remove("on"); render(); };
+$("#v-list").onclick = () => { state.view = "list"; $("#v-list").classList.add("on"); $("#v-card").classList.remove("on"); render(); };
+$("#show-all").onclick = () => { state.showAll = true; render(); $("#all-sec").scrollIntoView({behavior:"smooth"}); };
+</script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>阅读 - 谢作如文集</title>
+<style>
+:root{--bg:#525659;--bar:#323639;--ink:#ececec;--accent:#e8b4a6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+#bar{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;background:var(--bar);color:var(--ink);padding:8px 14px;font-size:13.5px}
+#bar .title{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+#bar button,#bar a{background:#4a4d51;color:var(--ink);border:none;border-radius:6px;padding:5px 12px;font-size:13px;cursor:pointer;text-decoration:none;white-space:nowrap}
+#bar button:hover,#bar a:hover{background:#5c6065}
+#zoomv{min-width:44px;text-align:center;color:#bbb}
+#pages{max-width:960px;margin:18px auto 60px;padding:0 12px}
+.page{position:relative;margin:0 auto 14px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.page canvas{display:block;width:100%;height:auto}
+.page .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#999;font-size:13px}
+#status{color:#ddd;text-align:center;padding:80px 20px;font-size:14px}
+</style>
+</head>
+<body>
+<div id="bar">
+  <a href="index.html">← 返回</a>
+  <span class="title" id="ttl">加载中……</span>
+  <button id="zout">－</button><span id="zoomv">100%</span><button id="zin">＋</button>
+  <a id="dl" href="#" download>下载 PDF</a>
+</div>
+<div id="status">正在加载 PDF……</div>
+<div id="pages"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const file = params.get("file");
+const title = params.get("title") || "文章阅读";
+document.title = title + " - 谢作如文集";
+document.getElementById("ttl").textContent = title;
+document.getElementById("dl").href = file;
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+let pdf = null, zoom = 1.0;
+const pagesEl = document.getElementById("pages");
+const statusEl = document.getElementById("status");
+const rendered = new Set();
+
+function baseWidth(){ return Math.min(960, window.innerWidth - 24); }
+
+async function renderPage(n){
+  if (rendered.has(n)) return;
+  rendered.add(n);
+  const holder = document.getElementById("pg" + n);
+  if (!holder) return;
+  const page = await pdf.getPage(n);
+  const unscaled = page.getViewport({scale:1});
+  const scale = baseWidth() * zoom / unscaled.width;
+  const vp = page.getViewport({scale});
+  const canvas = document.createElement("canvas");
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = vp.width * dpr; canvas.height = vp.height * dpr;
+  canvas.style.width = "100%";
+  const ctx = canvas.getContext("2d");
+  await page.render({canvasContext: ctx,
+    transform: [dpr,0,0,dpr,0,0], viewport: vp}).promise;
+  holder.innerHTML = ""; holder.appendChild(canvas);
+}
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) renderPage(+e.target.dataset.n); });
+}, {rootMargin: "600px 0px"});
+
+async function build(){
+  pdf = await pdfjsLib.getDocument(file).promise;
+  statusEl.style.display = "none";
+  pagesEl.innerHTML = "";
+  rendered.clear();
+  for (let n = 1; n <= pdf.numPages; n++){
+    const page = await pdf.getPage(n);
+    const vp = page.getViewport({scale:1});
+    const div = document.createElement("div");
+    div.className = "page"; div.id = "pg" + n; div.dataset.n = n;
+    div.style.aspectRatio = vp.width + "/" + vp.height;
+    div.innerHTML = '<div class="ph">第 ' + n + " 页</div>";
+    pagesEl.appendChild(div);
+    io.observe(div);
+  }
+}
+
+document.getElementById("zin").onclick = () => setZoom(zoom + 0.2);
+document.getElementById("zout").onclick = () => setZoom(Math.max(0.4, zoom - 0.2));
+function setZoom(z){
+  zoom = z;
+  document.getElementById("zoomv").textContent = Math.round(z*100) + "%";
+  rendered.clear();
+  document.querySelectorAll(".page").forEach(d => {
+    d.innerHTML = '<div class="ph">第 ' + d.dataset.n + " 页</div>";
+  });
+  // 触发当前可视区域重绘
+  io.takeRecords();
+  document.querySelectorAll(".page").forEach(d => {
+    const r = d.getBoundingClientRect();
+    if (r.bottom > -600 && r.top < innerHeight + 600) renderPage(+d.dataset.n);
+  });
+}
+
+build().catch(e => { statusEl.textContent = "PDF 加载失败：" + e.message; });
+</script>
+</body>
+</html>
