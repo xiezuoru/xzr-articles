@@ -1,7 +1,6 @@
-# 构建产物，由 build.py 生成，不进 git（源文件在仓库根目录）
-articles.json
-articles.js
-thumbs/
+# Cloudflare Pages 直接从 GitHub 构建（部署目录=仓库根目录），
+# 因此索引数据必须进 git，否则线上取不到目录。
+# 网页源文件在仓库根目录，构建时复制进来，不需要重复提交。
 index.html
 reader.html
 config.js
