@@ -133,7 +133,11 @@ let PDF_PREFIX = "";
 const $ = s => document.querySelector(s);
 const pdfUrl = a => (PDF_PREFIX || "") + a.path.split("/").map(encodeURIComponent).join("/");
 // 传给阅读器的是绝对地址，这样不管 reader.html 位于根目录还是 site/dist 都能定位到 PDF
-const readerUrl = a => DATA_BASE + "reader.html?file=" +
+// reader.html 与 index.html 始终同级（仓库根目录 / 构建后的 dist），
+// 所以链接要相对「页面」而不是数据目录：数据若在 site/dist/，线上会指向
+// 仓库里并不存在的路径（dist 内的网页副本不进 git），点击后被打回首页。
+// PDF 用绝对地址，保证阅读器位于任何位置都能取到文件。
+const readerUrl = a => "reader.html?file=" +
   encodeURIComponent(new URL(pdfUrl(a), location.href).href) +
   "&title=" + encodeURIComponent(a.title);
 const openReader = a => location.href = readerUrl(a);

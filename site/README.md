@@ -22,6 +22,7 @@ xzr-articles/
 ├── index.html                 # ★ 网站首页（卡片墙 + 列表 + 搜索筛选）
 ├── reader.html                # ★ PDF 在线阅读器（PDF.js）
 ├── config.js                  # ★ 配置：PDF_BASE（同域部署时留空）
+├── vendor/                    # PDF.js 自带副本（阅读器用，不依赖 CDN）
 ├── 2003年度/ … 2026年度/      # 文章 PDF（按年份）
 ├── 中国信息技术教育-专栏文章-对话/ 等   # 文章 PDF（按专栏）
 └── site/
@@ -32,8 +33,13 @@ xzr-articles/
         ├── articles.json      # 构建生成的文章索引（进 git）
         ├── articles.js        # 同上，JS 版，供 file:// 直接打开时使用（进 git）
         ├── thumbs/            # 构建生成的封面缩略图（进 git）
-        └── index.html 等       # 由根目录复制而来，不进 git
+        └── index.html 等       # 由根目录复制而来，不进 git（含 vendor/）
 ```
+
+> 两个容易踩的坑：
+> 1. **索引数据必须进 git**。Cloudflare 从 GitHub 构建，`.gitignore` 掉的构建产物线上取不到，首页会提示"索引加载失败"。
+> 2. **阅读器链接相对页面、而不是索引数据目录**。`index.html` 与 `reader.html` 始终同级（仓库根目录 / 构建后的 dist），若把数据目录 `site/dist/` 拼进链接，线上会指向仓库里并不存在的路径，点击文章会直接被打回首页。
+> 3. PDF.js 用的是 `vendor/` 里的自带副本（国内网络、微信内置浏览器访问 cdnjs 常超时），缺失时才回退 CDN。
 
 ## 日常新增文章
 

@@ -292,6 +292,13 @@ def main():
         else:
             print(f"警告：根目录缺少 {f}")
 
+    # PDF.js 自带副本：阅读器用它，避免依赖 CDN（国内/微信访问 cdnjs 不稳定）
+    vend = ROOT / "vendor"
+    if vend.is_dir():
+        shutil.copytree(vend, DIST / "vendor", dirs_exist_ok=True)
+    else:
+        print("警告：根目录缺少 vendor/（PDF.js 自带副本），阅读器将回退 CDN")
+
     n_merged = len(pdfs) - len(out)
     print(f"文章数：{len(out)}（合并了 {n_merged} 个同年重复文件）")
     print(f"缺少年份：{sum(1 for a in out if not a['year'])}，缺少刊物：{sum(1 for a in out if not a['magazine'])}")
