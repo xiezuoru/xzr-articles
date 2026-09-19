@@ -106,7 +106,17 @@ function setZoom(z){
   });
 }
 
-build().catch(e => { statusEl.textContent = "PDF 加载失败：" + e.message; });
+build().catch(e => {
+  if (location.protocol === "file:") {
+    statusEl.innerHTML = "浏览器不允许本地直接打开时用脚本读取 PDF（搜索、筛选不受影响）。<br><br>" +
+      "在线阅读请任选一种：<br>" +
+      "1. 点右上角「下载 PDF」，用浏览器自带的阅读器打开；<br>" +
+      "2. 在仓库根目录运行 <code style='color:#e8b4a6'>python3 -m http.server 8000</code>，" +
+      "再访问 <code style='color:#e8b4a6'>http://localhost:8000/</code>。";
+  } else {
+    statusEl.textContent = "PDF 加载失败：" + e.message;
+  }
+});
 </script>
 </body>
 </html>

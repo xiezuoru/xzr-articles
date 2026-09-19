@@ -83,6 +83,11 @@ python3 -m http.server 8000
 # 浏览器打开 http://localhost:8000/ 即为网站首页
 ```
 
+也可以**直接双击根目录的 `index.html`**：浏览、搜索、筛选、封面都能用
+（页面会自动改用 `articles.js` 载入索引，绕开浏览器对 file:// 读取本地 JSON 的限制）。
+只有「在线阅读器」在 file:// 下受浏览器安全策略限制，需用上面的本地服务器方式，
+或点阅读器右上角「下载 PDF」用浏览器自带阅读器查看。
+
 ## 自定义域名（可选）
 
 Pages 项目 → Custom domains → 绑定自己的域名（如 `articles.example.com`），

@@ -275,8 +275,13 @@ def main():
         out.append(a)
 
     out.sort(key=lambda x: (x["year"] or 0, x["title"]), reverse=True)
+    payload = json.dumps(out, ensure_ascii=False)
     (DIST / "articles.json").write_text(
         json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
+    # 同一份数据的 JS 版本：本地直接双击 index.html（file:// 协议）时浏览器
+    # 不允许 fetch 本地 JSON，但允许 <script> 加载，页面会自动降级到这里
+    (DIST / "articles.js").write_text(
+        "window.ARTICLES_DATA = " + payload + ";\n", encoding="utf-8")
 
     # 网页源文件放在仓库根目录（访问根目录首页即可打开网站），
     # 构建时复制进 dist，供 Cloudflare Pages 部署

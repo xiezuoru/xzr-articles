@@ -131,7 +131,9 @@ let PDF_PREFIX = "";
 
 const $ = s => document.querySelector(s);
 const pdfUrl = a => (PDF_PREFIX || "") + a.path.split("/").map(encodeURIComponent).join("/");
-const readerUrl = a => DATA_BASE + "reader.html?file=" + encodeURIComponent(pdfUrl(a)) +
+// 传给阅读器的是绝对地址，这样不管 reader.html 位于根目录还是 site/dist 都能定位到 PDF
+const readerUrl = a => DATA_BASE + "reader.html?file=" +
+  encodeURIComponent(new URL(pdfUrl(a), location.href).href) +
   "&title=" + encodeURIComponent(a.title);
 const openReader = a => location.href = readerUrl(a);
 
@@ -140,6 +142,30 @@ async function resolveBase(){
     try { const r = await fetch(b + "articles.json", {method:"HEAD"}); if (r.ok) return b; } catch(e){}
   }
   return "";
+}
+
+// 本地直接双击 index.html 打开时协议是 file://，浏览器禁止 fetch 本地文件，
+// 这时改用 <script> 加载 articles.js（不受该限制）
+function loadDataByScript(base){
+  return new Promise(resolve => {
+    const s = document.createElement("script");
+    s.src = base + "articles.js";
+    s.onload = () => resolve(Array.isArray(window.ARTICLES_DATA) ? window.ARTICLES_DATA : null);
+    s.onerror = () => resolve(null);
+    document.head.appendChild(s);
+  });
+}
+
+async function loadData(){
+  try {
+    const r = await fetch(DATA_BASE + "articles.json");
+    if (r.ok) return await r.json();
+  } catch(e){}
+  for (const b of [DATA_BASE, "", "site/dist/"]){
+    const d = await loadDataByScript(b);
+    if (d) { DATA_BASE = b; return d; }
+  }
+  return null;
 }
 
 function metaLine(a){
@@ -214,19 +240,17 @@ function fillFilters(){
 }
 
 (async function init(){
-  DATA_BASE = await resolveBase();
-  PDF_PREFIX = CFG.PDF_BASE
-    ? CFG.PDF_BASE.replace(/\/+$/, "") + "/"
-    : (DATA_BASE ? "../../" : "");
-  const DATA_URL = DATA_BASE + "articles.json";
-  let d;
-  try {
-    d = await (await fetch(DATA_URL)).json();
-  } catch (e) {
-    $("#subtitle").textContent = "文章索引加载失败，请先运行 site/build.py 生成索引";
+  const d = await loadData();
+  if (!d) {
+    $("#subtitle").textContent = "文章索引加载失败：请先在 site 目录运行 build.py 生成索引";
     return;
   }
   DATA = d;
+  // PDF 相对路径取决于「页面」所在位置（而非数据位置）：
+  // 页面在仓库根目录 → 直接相对路径；页面在 site/dist/ 内 → 上跳两级
+  PDF_PREFIX = CFG.PDF_BASE
+    ? CFG.PDF_BASE.replace(/\/+$/, "") + "/"
+    : (location.pathname.includes("/site/dist/") ? "../../" : "");
   const ys = DATA.map(a=>a.year).filter(Boolean);
   $("#subtitle").innerHTML =
     `历年发表文章 · 共 <b>${DATA.length}</b> 篇 · 自 <b>${Math.min(...ys)}</b> 年至 <b>${Math.max(...ys)}</b> 年 · 点击即可在线阅读`;
