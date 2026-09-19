@@ -1,86 +1,62 @@
 # 谢作如文集网站
 
 把本仓库的 PDF 文章变成一个可搜索、可筛选、可在线阅读的网站。
-纯静态，无数据库：网页托管在 **Cloudflare Pages**，PDF 文件托管在 **Cloudflare R2**。
+纯静态，无数据库，线上地址：<https://xzr.quickform.cc/>
+
+## 线上是怎么部署的
+
+**Cloudflare Pages 直接连 GitHub 仓库构建**，部署目录 = **仓库根目录**：
+
+- 页面（`index.html` / `reader.html` / `config.js`）在根目录，访问根路径即为首页
+- PDF 也在仓库里，和网页同域，`config.js` 里的 `PDF_BASE` **保持为空**即可正常阅读
+- 索引数据（`site/dist/articles.json`、`articles.js`、`thumbs/`）**必须提交进 git**——
+  Cloudflare 从仓库拉代码构建，仓库里没有的文件线上就取不到
+
+> 注意：Cloudflare 对不存在的路径会返回 **200 的兜底 HTML**，所以网页不能靠状态码
+> 判断文件是否存在，代码里改为校验 `Content-Type` 与 JSON 结构。
 
 ## 目录结构
 
 ```
 xzr-articles/
-├── index.html                 # ★ 网站首页（仓库根目录，唯一源文件）
+├── index.html                 # ★ 网站首页（卡片墙 + 列表 + 搜索筛选）
 ├── reader.html                # ★ PDF 在线阅读器（PDF.js）
-├── config.js                  # ★ 配置：PDF_BASE 指向 R2 公开域名
+├── config.js                  # ★ 配置：PDF_BASE（同域部署时留空）
 ├── 2003年度/ … 2026年度/      # 文章 PDF（按年份）
 ├── 中国信息技术教育-专栏文章-对话/ 等   # 文章 PDF（按专栏）
 └── site/
-    ├── build.py               # 索引构建脚本（扫描 PDF → articles.json + 缩略图，并复制网页到 dist）
+    ├── build.py               # 索引构建：扫描 PDF → articles.json/articles.js + 缩略图
     ├── overrides.json         # 手动修正个别文章的元数据
-    ├── deploy.sh              # 一键部署（构建 → 同步 R2 → 部署 Pages）
-    └── dist/                  # 部署产物（全部由 build.py 生成，勿手改、不进 git）
-        ├── index.html         # 由根目录复制而来
-        ├── reader.html        # 由根目录复制而来
-        ├── config.js          # 由根目录复制而来
-        ├── articles.json      # 构建生成的文章索引
-        └── thumbs/            # 构建生成的封面缩略图
+    ├── deploy.sh              # 备用部署方式（wrangler + R2，一般用不到）
+    └── dist/                  # 索引数据目录（数据进 git，网页副本不进）
+        ├── articles.json      # 构建生成的文章索引（进 git）
+        ├── articles.js        # 同上，JS 版，供 file:// 直接打开时使用（进 git）
+        ├── thumbs/            # 构建生成的封面缩略图（进 git）
+        └── index.html 等       # 由根目录复制而来，不进 git
 ```
 
-首页会自动识别自己所在位置：根目录访问时从 `site/dist/` 读数据，
-部署到 Pages 后（dist 内）从同目录读数据，同一份代码两处通用。
+## 日常新增文章
 
-## 一次性初始化（约 10 分钟）
-
-1. **安装工具**
+1. 把新 PDF 放进对应目录（如 `2026年度/`），命名沿用惯例：`刊物-标题_作者.pdf`
+2. 重新生成索引：
    ```bash
-   npm install -g wrangler     # Cloudflare 官方 CLI
-   brew install rclone         # 用于增量同步 PDF 到 R2
-   wrangler login              # 浏览器登录 Cloudflare 账号
+   cd ~/Documents/GitHub/xzr-articles/site && python3 build.py
    ```
-
-2. **创建 R2 桶并开公开访问**
+   （首次使用先装依赖：`pip3 install PyMuPDF`）
+3. 提交并推送，Cloudflare 会自动重新部署：
    ```bash
-   wrangler r2 bucket create xzr-articles-pdf
-   wrangler r2 bucket dev-url enable xzr-articles-pdf   # 得到 https://pub-xxxx.r2.dev
-   ```
-   把得到的域名填进根目录 `config.js` 的 `PDF_BASE`（不要结尾斜杠）。
-
-3. **配置 R2 的 CORS**（允许 Pages 域名跨域加载 PDF）
-   把下面的 JSON 存为 `cors.json`（域名换成你的 Pages 域名）：
-   ```json
-   [{"AllowedOrigins": ["https://xzr-articles.pages.dev"],
-     "AllowedMethods": ["GET", "HEAD"], "AllowedHeaders": ["*"], "MaxAgeSeconds": 3600}]
-   ```
-   ```bash
-   wrangler r2 bucket cors put xzr-articles-pdf --file cors.json
+   cd ~/Documents/GitHub/xzr-articles
+   git add -A && git commit -m "新增文章：xxx" && git push
    ```
 
-4. **配置 rclone**（`rclone config` 新建名为 `r2` 的 remote）
-   - type: `s3`，provider: `Cloudflare`
-   - access_key_id / secret_access_key：Cloudflare 控制台 → R2 → Manage R2 API Tokens 创建
-   - endpoint: `https://<账户ID>.r2.cloudflarestorage.com`
-
-5. **创建 Pages 项目并首次部署**
-   ```bash
-   cd site
-   ./deploy.sh
-   ```
-
-6. **开启访问统计**：Cloudflare 控制台 → Workers & Pages → xzr-articles →
-   Web Analytics → 开启（免费，无需改代码）。
-
-## 日常新增文章（三步）
-
-1. 把新 PDF 放进对应目录（如 `2026年度/`）
-2. 命名尽量保持惯例：`刊物-标题_作者.pdf` 或 `2026年3期-标题_作者.pdf`
-3. 运行 `./deploy.sh`（或在终端执行 `cd site && ./deploy.sh`）
-
-如果某篇文章标题/年份/刊物解析不对，在 `overrides.json` 里按文件名修正后重新部署。
+标题/年份/刊物解析不对时，在 `site/overrides.json` 里按文件名写死字段，再跑一次 `build.py`。
 
 ## 本地预览
 
 ```bash
-cd xzr-articles          # 仓库根目录
+cd ~/Documents/GitHub/xzr-articles
 python3 -m http.server 8000
-# 浏览器打开 http://localhost:8000/ 即为网站首页
+# 浏览器打开 http://localhost:8000/
 ```
 
 也可以**直接双击根目录的 `index.html`**：浏览、搜索、筛选、封面都能用
@@ -88,8 +64,24 @@ python3 -m http.server 8000
 只有「在线阅读器」在 file:// 下受浏览器安全策略限制，需用上面的本地服务器方式，
 或点阅读器右上角「下载 PDF」用浏览器自带阅读器查看。
 
-## 自定义域名（可选）
+## 可选：把 PDF 搬到 R2
 
-Pages 项目 → Custom domains → 绑定自己的域名（如 `articles.example.com`），
-R2 桶也可绑 `pdf.example.com` 替代 r2.dev 域名（记得同步改 config.js 和 CORS）。
-注意：绑自有域名且主要面向国内访问时，域名需完成 ICP 备案才能有较好的国内速度。
+现在的做法是把 PDF 一起放进 Pages 部署，简单但有两点限制：
+
+- 每次部署要把全部 PDF（约 1.4G）重新上传一遍，较慢
+- Pages 单个文件上限 **25 MiB**，将来出现更大的 PDF 会导致部署失败
+
+需要时再迁到 R2（10 GB 免费、流量免费）：
+
+1. `wrangler r2 bucket create xzr-articles-pdf`，开启公开访问拿到 `https://pub-xxxx.r2.dev`
+2. 把域名填进根目录 `config.js` 的 `PDF_BASE`（结尾不要斜杠）
+3. 配 R2 的 CORS，允许站点域名跨域读取：
+   ```bash
+   wrangler r2 bucket cors put xzr-articles-pdf --file cors.json
+   ```
+   `cors.json` 内容：`[{"AllowedOrigins":["https://xzr.quickform.cc"],"AllowedMethods":["GET","HEAD"],"AllowedHeaders":["*"],"MaxAgeSeconds":3600}]`
+4. 用 rclone 把 PDF 同步到桶里（`site/deploy.sh` 里有现成命令）
+
+## 访问统计
+
+Cloudflare 控制台 → Workers & Pages → 对应项目 → **Web Analytics** 开启即可（免费，无需改代码）。
