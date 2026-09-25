@@ -66,6 +66,15 @@ select{padding:8px 10px;border:1px solid var(--line);border-radius:8px;backgroun
 .view-toggle button.on{background:var(--accent);color:#fff}
 
 footer{margin:46px 0 30px;text-align:center;color:var(--ink3);font-size:12.5px}
+.friends{display:flex;justify-content:center;align-items:baseline;flex-wrap:wrap;
+  gap:6px 20px;margin-bottom:16px;font-size:13px}
+.friends .lbl{color:var(--ink3);font-size:12.5px;letter-spacing:1px}
+.friends a{color:var(--ink2);border-bottom:1px solid transparent;
+  transition:color .15s,border-color .15s}
+.friends a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+footer .copyright{line-height:1.9}
+footer .siteurl{color:var(--accent);font-weight:600;letter-spacing:.4px}
+footer .siteurl:hover{text-decoration:underline}
 .empty{padding:60px 0;text-align:center;color:var(--ink3)}
 @media (max-width:640px){
   header h1{font-size:24px}
@@ -119,7 +128,17 @@ footer{margin:46px 0 30px;text-align:center;color:var(--ink3);font-size:12.5px}
 </main>
 
 <footer>
-  <div class="wrap">谢作如文集 · 文章版权归原作者及发表刊物所有 · 本站仅供学习交流</div>
+  <div class="wrap">
+    <div class="friends">
+      <span class="lbl">友情链接</span>
+      <a href="https://www.vvplan.cn/" target="_blank" rel="noopener">虚谷计划</a>
+      <a href="https://www.steamedu.site/" target="_blank" rel="noopener">全国中小学STEAM教育大会</a>
+      <a href="https://www.quickform.cc/" target="_blank" rel="noopener">开源项目QuickForm</a>
+      <a href="https://www.xedupro.cn/" target="_blank" rel="noopener">开源项目XEduPro</a>
+    </div>
+    <div class="copyright">谢作如文集 · <a class="siteurl" href="https://xzr.quickform.cc/" title="本站网址">xzr.quickform.cc</a><br>
+      文章版权归原作者及发表刊物所有 · 本站仅供学习交流</div>
+  </div>
 </footer>
 
 <script>

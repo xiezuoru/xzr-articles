@@ -30,6 +30,15 @@ body{background:var(--bg);font-family:-apple-system,"PingFang SC","Microsoft YaH
 #status .acts{margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 #status .acts a{background:#4a4d51;color:var(--ink);border-radius:6px;padding:8px 16px;font-size:13.5px;text-decoration:none}
 #status .acts a:hover{background:#5c6065}
+/* 页脚：深色阅读页下的友情链接与本站网址 */
+#foot{max-width:960px;margin:0 auto 46px;padding:20px 16px 0;
+  border-top:1px solid #6a6e72;text-align:center;color:#b9bdc0;font-size:12.5px;line-height:2}
+#foot .friends{display:flex;justify-content:center;align-items:baseline;flex-wrap:wrap;
+  gap:4px 18px;margin-bottom:8px}
+#foot .friends .lbl{color:#9aa0a4;letter-spacing:1px}
+#foot a{color:#d8dbdd;text-decoration:none}
+#foot a:hover{color:var(--accent);text-decoration:underline}
+#foot .siteurl{color:var(--accent);font-weight:600;letter-spacing:.4px}
 </style>
 </head>
 <body>
@@ -41,6 +50,18 @@ body{background:var(--bg);font-family:-apple-system,"PingFang SC","Microsoft YaH
 </div>
 <div id="status">正在加载 PDF……</div>
 <div id="pages"></div>
+
+<footer id="foot">
+  <div class="friends">
+    <span class="lbl">友情链接</span>
+    <a href="https://www.vvplan.cn/" target="_blank" rel="noopener">虚谷计划</a>
+    <a href="https://www.steamedu.site/" target="_blank" rel="noopener">全国中小学STEAM教育大会</a>
+    <a href="https://www.quickform.cc/" target="_blank" rel="noopener">开源项目QuickForm</a>
+    <a href="https://www.xedupro.cn/" target="_blank" rel="noopener">开源项目XEduPro</a>
+  </div>
+  <div>谢作如文集 · <a class="siteurl" href="https://xzr.quickform.cc/" title="本站网址">xzr.quickform.cc</a></div>
+  <div style="color:#9aa0a4">文章版权归原作者及发表刊物所有 · 本站仅供学习交流</div>
+</footer>
 
 <!-- PDF.js 优先用站点自带副本：国内网络（尤其微信内置浏览器）访问 cdnjs 常超时或失败，
      自带副本缺失时再动态回退 CDN。 -->
