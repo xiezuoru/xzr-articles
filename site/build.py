@@ -8,7 +8,7 @@ xzr-articles 站点索引构建脚本
 
 用法：
     python build.py              # 全量构建
-    python build.py --no-thumbs  # 只更新索引，不重生成缩略图
+    python build.py --no-thumbs  # 只更新索引，不生成缩略图（已有封面不受影响）
 
 手动修正：在 overrides.json 中按文件名指定字段，例如：
     {"中学生天地B-202606期-.pdf": {"title": "AI专题（下）", "magazine": "中学生天地"}}
@@ -283,6 +283,18 @@ def main():
     (DIST / "articles.js").write_text(
         "window.ARTICLES_DATA = " + payload + ";\n", encoding="utf-8")
 
+    # 清理孤儿缩略图：缩略图文件名 = 文章 id（"标题|年份"的哈希），
+    # 所以用 overrides.json 修正过标题/年份、或调整过解析规则后，
+    # 旧 id 的缩略图就成了没人引用的孤儿，只会白占体积
+    if not no_thumbs:
+        used = {f"{a['id']}.jpg" for a in out}
+        orphans = sorted(f for f in THUMBS.glob("*.jpg") if f.name not in used)
+        for f in orphans:
+            f.unlink()
+        if orphans:
+            print(f"已清理 {len(orphans)} 张孤儿缩略图：",
+                  *[f.name for f in orphans], sep="\n  ")
+
     # 网页源文件放在仓库根目录（访问根目录首页即可打开网站），
     # 构建时复制进 dist，供 Cloudflare Pages 部署
     for f in ("index.html", "reader.html", "config.js"):
@@ -306,6 +318,13 @@ def main():
         print("标题为空（已用文件名兜底）:", *skipped, sep="\n  ")
     if err_thumbs:
         print("以下 PDF 读取失败:", *err_thumbs, sep="\n  ")
+    missing = [a for a in out if not a["thumb"]]
+    if missing:
+        print(f"\n警告：有 {len(missing)} 篇没有封面缩略图"
+              f"（--no-thumbs 模式不会生成）")
+        for a in missing:
+            print("   ", a["path"])
+        print("   修复：运行 python build.py（不带 --no-thumbs）")
     print(f"索引已写入 {DIST / 'articles.json'}，缩略图目录 {THUMBS}")
 
 
