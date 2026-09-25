@@ -1,2 +1,7 @@
 # 去除mac中的奇怪文件
 *.DS_Store 
+
+# 知网期号补全工具的中间产物（本地生成，不入库）
+site/cnki_issues.json
+site/overrides.json.bak-*
+node_modules/
