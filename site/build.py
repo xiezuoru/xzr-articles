@@ -220,6 +220,11 @@ def main():
                 a["_size"] = size_mb
                 a["path"] = entry["path"]
                 a["size_mb"] = size_mb
+            # 两个副本的元数据可能各有缺失（如年度目录里的文件没写刊物、
+            # 各类杂志专题组稿里的写了），按"谁有就用谁的"补齐，避免信息丢失
+            for f in ("author", "issue", "magazine", "year"):
+                if not a.get(f) and meta.get(f):
+                    a[f] = meta[f]
         else:
             aid = hashlib.md5(key.encode("utf-8")).hexdigest()[:10]
             articles[key] = {

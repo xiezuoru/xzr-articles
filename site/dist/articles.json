@@ -64,20 +64,20 @@
   "thumb": "thumbs/a84c4c4881.jpg"
  },
  {
-  "id": "e96131bbce",
-  "title": "温州科技高中师生文章",
+  "id": "69d77a16c5",
+  "title": "我们如何探索人工智能的世界（附学生作品）",
   "author": null,
   "year": 2026,
   "issue": "3月",
   "magazine": "中学生天地",
-  "topic": "其他",
-  "path": "中学生天地/中学生天地B-202603期-温州科技高中师生文章.pdf",
+  "topic": "人工智能教育",
+  "path": "中学生天地/中学生天地B-202603期-我们如何探索人工智能的世界（附学生作品）.pdf",
   "size_mb": 15.24,
   "collections": [
    "中学生天地"
   ],
   "pages": 5,
-  "thumb": "thumbs/e96131bbce.jpg"
+  "thumb": "thumbs/69d77a16c5.jpg"
  },
  {
   "id": "6b9139f1e2",
@@ -96,20 +96,20 @@
   "thumb": "thumbs/6b9139f1e2.jpg"
  },
  {
-  "id": "3c4a2181af",
-  "title": "中学生天地B 2026年6期",
+  "id": "07ce162c15",
+  "title": "“养龙虾” 背后，你需要知道的那些事儿",
   "author": null,
   "year": 2026,
   "issue": "6月",
   "magazine": "中学生天地",
   "topic": "其他",
-  "path": "中学生天地/中学生天地B-202606期-.pdf",
+  "path": "中学生天地/中学生天地B-202606期-“养龙虾” 背后，你需要知道的那些事儿.pdf",
   "size_mb": 13.29,
   "collections": [
    "中学生天地"
   ],
   "pages": 4,
-  "thumb": "thumbs/3c4a2181af.jpg"
+  "thumb": "thumbs/07ce162c15.jpg"
  },
  {
   "id": "ffa9dac406",
@@ -215,10 +215,10 @@
   "issue": "5月上",
   "magazine": "中国信息技术教育",
   "topic": "人工智能教育",
-  "path": "各类专题组稿/2025年5月上-中国信息技术教育-让人工智能教育回归实验.pdf",
+  "path": "各类杂志的专题组稿/2025年5月上-中国信息技术教育-让人工智能教育回归实验.pdf",
   "size_mb": 4.18,
   "collections": [
-   "各类专题组稿"
+   "各类杂志的专题组稿"
   ],
   "pages": 16,
   "thumb": "thumbs/b54490a5f3.jpg"
@@ -247,10 +247,10 @@
   "issue": "8月",
   "magazine": "中国科技教育",
   "topic": "人工智能教育",
-  "path": "各类专题组稿/2025年8月-中国科技教育-第八届全国中小学人工智能教育展示活动.pdf",
+  "path": "各类杂志的专题组稿/2025年8月-中国科技教育-第八届全国中小学人工智能教育展示活动.pdf",
   "size_mb": 16.51,
   "collections": [
-   "各类专题组稿"
+   "各类杂志的专题组稿"
   ],
   "pages": 30,
   "thumb": "thumbs/c681696aa1.jpg"
@@ -663,10 +663,10 @@
   "issue": "12月",
   "magazine": "中国科技教育",
   "topic": "人工智能教育",
-  "path": "各类专题组稿/2024年12月-中国科技教育-人工智能课程教什么、怎么教、如何评.pdf",
+  "path": "各类杂志的专题组稿/2024年12月-中国科技教育-人工智能课程教什么、怎么教、如何评.pdf",
   "size_mb": 14.4,
   "collections": [
-   "各类专题组稿"
+   "各类杂志的专题组稿"
   ],
   "pages": 28,
   "thumb": "thumbs/f27d532418.jpg"
@@ -807,10 +807,10 @@
   "issue": "6月",
   "magazine": "中小学信息技术教育",
   "topic": "人工智能教育",
-  "path": "各类专题组稿/2023年6月-中小学信息技术教育-迈向新一代人工智能教育.pdf",
+  "path": "各类杂志的专题组稿/2023年6月-中小学信息技术教育-迈向新一代人工智能教育.pdf",
   "size_mb": 6.3,
   "collections": [
-   "各类专题组稿"
+   "各类杂志的专题组稿"
   ],
   "pages": 16,
   "thumb": "thumbs/4665652e0e.jpg"
@@ -1268,14 +1268,14 @@
   "title": "人工智能教育和科创活动",
   "author": "谢作如",
   "year": 2022,
-  "issue": null,
-  "magazine": null,
+  "issue": "7月上",
+  "magazine": "中国信息技术教育",
   "topic": "人工智能教育",
-  "path": "各类专题组稿/2022年7月上-中国信息技术教育-人工智能教育和科创活动.pdf",
+  "path": "各类杂志的专题组稿/2022年7月上-中国信息技术教育-人工智能教育和科创活动.pdf",
   "size_mb": 3.12,
   "collections": [
    "2022年度",
-   "各类专题组稿"
+   "各类杂志的专题组稿"
   ],
   "pages": 16,
   "thumb": "thumbs/ed646647af.jpg"
@@ -1640,10 +1640,10 @@
   "issue": "8月(上）",
   "magazine": "中国信息技术教育",
   "topic": "物联网与信息科技",
-  "path": "各类专题组稿/2021年8月(上）-中国信息技术教育-“玩转”真正的物联网技术.pdf",
+  "path": "各类杂志的专题组稿/2021年8月(上）-中国信息技术教育-“玩转”真正的物联网技术.pdf",
   "size_mb": 3.4,
   "collections": [
-   "各类专题组稿"
+   "各类杂志的专题组稿"
   ],
   "pages": 18,
   "thumb": "thumbs/f4e242aade.jpg"
@@ -1928,10 +1928,10 @@
   "issue": "12月（上）",
   "magazine": "中国信息技术教育",
   "topic": "创客与STEM教育",
-  "path": "各类专题组稿/2020年12月（上）-中国信息技术教育-专题-用Python驱动开源硬件.pdf",
+  "path": "各类杂志的专题组稿/2020年12月（上）-中国信息技术教育-专题-用Python驱动开源硬件.pdf",
   "size_mb": 4.18,
   "collections": [
-   "各类专题组稿"
+   "各类杂志的专题组稿"
   ],
   "pages": 17,
   "thumb": "thumbs/e0f69ecd52.jpg"
@@ -2037,14 +2037,14 @@
   "title": "虚谷物联来了",
   "author": "谢作如",
   "year": 2019,
-  "issue": null,
-  "magazine": null,
+  "issue": "10月（上）",
+  "magazine": "中国信息技术教育",
   "topic": "创客与STEM教育",
-  "path": "各类专题组稿/2019年10月（上）-中国信息技术教育-虚谷物联来了.pdf",
+  "path": "各类杂志的专题组稿/2019年10月（上）-中国信息技术教育-虚谷物联来了.pdf",
   "size_mb": 3.08,
   "collections": [
    "2019年度",
-   "各类专题组稿"
+   "各类杂志的专题组稿"
   ],
   "pages": 18,
   "thumb": "thumbs/c4d1b2e51d.jpg"
@@ -2454,8 +2454,8 @@
   "title": "寻味人工智能教育祛魅之下的实践与思考",
   "author": "梁森山",
   "year": 2018,
-  "issue": null,
-  "magazine": null,
+  "issue": "2期",
+  "magazine": "中国信息技术教育",
   "topic": "人工智能教育",
   "path": "2018年度/寻味人工智能教育_祛魅之下的实践与思考_梁森山.pdf",
   "size_mb": 4.01,
@@ -2522,10 +2522,10 @@
   "issue": "6月",
   "magazine": "中国信息技术教育",
   "topic": "其他",
-  "path": "各类专题组稿/2018.6-中国信息技术教育-基于产品的学习.pdf",
+  "path": "各类杂志的专题组稿/2018.6-中国信息技术教育-基于产品的学习.pdf",
   "size_mb": 4.81,
   "collections": [
-   "各类专题组稿"
+   "各类杂志的专题组稿"
   ],
   "pages": 21,
   "thumb": "thumbs/98aa9b731d.jpg"
@@ -2554,10 +2554,10 @@
   "issue": "5月（上）",
   "magazine": "中国信息技术教育",
   "topic": "创客与STEM教育",
-  "path": "各类专题组稿/2018年5月（上）-中国信息技术教育-创客教育的中国气派.pdf",
+  "path": "各类杂志的专题组稿/2018年5月（上）-中国信息技术教育-创客教育的中国气派.pdf",
   "size_mb": 2.68,
   "collections": [
-   "各类专题组稿"
+   "各类杂志的专题组稿"
   ],
   "pages": 19,
   "thumb": "thumbs/881e347e46.jpg"
@@ -3371,10 +3371,10 @@
   "issue": null,
   "magazine": "中小学信息技术教育",
   "topic": "其他",
-  "path": "各类专题组稿/2015-中小学信息技术教育--让教育感受自由.pdf",
+  "path": "各类杂志的专题组稿/2015-中小学信息技术教育--让教育感受自由.pdf",
   "size_mb": 0.96,
   "collections": [
-   "各类专题组稿"
+   "各类杂志的专题组稿"
   ],
   "pages": 17,
   "thumb": "thumbs/de4c885d50.jpg"
@@ -4184,14 +4184,14 @@
   "title": "从Scratch到S4A",
   "author": "谢作如",
   "year": 2014,
-  "issue": null,
-  "magazine": null,
+  "issue": "5月",
+  "magazine": "中国信息技术教育",
   "topic": "创客与STEM教育",
-  "path": "各类专题组稿/2014.5-中国信息技术教育-从scratch到s4a.pdf",
+  "path": "各类杂志的专题组稿/2014.5-中国信息技术教育-从scratch到s4a.pdf",
   "size_mb": 5.89,
   "collections": [
    "2014年度",
-   "各类专题组稿"
+   "各类杂志的专题组稿"
   ],
   "pages": 17,
   "thumb": "thumbs/f0340235be.jpg"
@@ -4844,10 +4844,10 @@
   "issue": "第4期",
   "magazine": "学与玩",
   "topic": "人工智能教育",
-  "path": "学与玩/第4期-打造我的AI茶博士-芮清.pdf",
+  "path": "学与玩-玩转AI/第4期-打造我的AI茶博士-芮清.pdf",
   "size_mb": 2.52,
   "collections": [
-   "学与玩"
+   "学与玩-玩转AI"
   ],
   "pages": 2,
   "thumb": "thumbs/10c598e4ec.jpg"
@@ -4860,10 +4860,10 @@
   "issue": null,
   "magazine": "学与玩",
   "topic": "其他",
-  "path": "学与玩/大咖寄语_谢作如.pdf",
+  "path": "学与玩-玩转AI/大咖寄语_谢作如.pdf",
   "size_mb": 0.55,
   "collections": [
-   "学与玩"
+   "学与玩-玩转AI"
   ],
   "pages": 1,
   "thumb": "thumbs/508a853f73.jpg"
@@ -4876,10 +4876,10 @@
   "issue": "第3期",
   "magazine": "学与玩",
   "topic": "人工智能教育",
-  "path": "学与玩/第3期-和AI一起,玩转春天-朱丽萍.pdf",
+  "path": "学与玩-玩转AI/第3期-和AI一起,玩转春天-朱丽萍.pdf",
   "size_mb": 1.17,
   "collections": [
-   "学与玩"
+   "学与玩-玩转AI"
   ],
   "pages": 2,
   "thumb": "thumbs/f9bddee1c5.jpg"
@@ -4892,10 +4892,10 @@
   "issue": "第7期",
   "magazine": "学与玩",
   "topic": "人工智能教育",
-  "path": "学与玩/第7期-与AI一起探秘地球-朱丹.pdf",
+  "path": "学与玩-玩转AI/第7期-与AI一起探秘地球-朱丹.pdf",
   "size_mb": 0.99,
   "collections": [
-   "学与玩"
+   "学与玩-玩转AI"
   ],
   "pages": 2,
   "thumb": "thumbs/13fcf2363c.jpg"
@@ -4908,10 +4908,10 @@
   "issue": "第5期",
   "magazine": "学与玩",
   "topic": "人工智能教育",
-  "path": "学与玩/第5期-AI解锁地图打卡新玩法-谢作如.pdf",
+  "path": "学与玩-玩转AI/第5期-AI解锁地图打卡新玩法-谢作如.pdf",
   "size_mb": 0.86,
   "collections": [
-   "学与玩"
+   "学与玩-玩转AI"
   ],
   "pages": 2,
   "thumb": "thumbs/677ec7dfea.jpg"
@@ -4924,10 +4924,10 @@
   "issue": "第8期",
   "magazine": "学与玩",
   "topic": "人工智能教育",
-  "path": "学与玩/第8期-AI虚拟宠物遥控器_陈瑶瑶.pdf",
+  "path": "学与玩-玩转AI/第8期-AI虚拟宠物遥控器-陈瑶瑶.pdf",
   "size_mb": 0.76,
   "collections": [
-   "学与玩"
+   "学与玩-玩转AI"
   ],
   "pages": 2,
   "thumb": "thumbs/5579f80876.jpg"
@@ -4940,10 +4940,10 @@
   "issue": "第2期",
   "magazine": "学与玩",
   "topic": "人工智能教育",
-  "path": "学与玩/第2期-AI侦探出击_揭开黄铜的“黄金”面具!-王国芳.pdf",
+  "path": "学与玩-玩转AI/第2期-AI侦探出击_揭开黄铜的“黄金”面具!-王国芳.pdf",
   "size_mb": 1.0,
   "collections": [
-   "学与玩"
+   "学与玩-玩转AI"
   ],
   "pages": 2,
   "thumb": "thumbs/ed2a62bbc2.jpg"
@@ -4956,12 +4956,28 @@
   "issue": "第6期",
   "magazine": "学与玩",
   "topic": "人工智能教育",
-  "path": "学与玩/第6期-AI 打造虚拟电报机-谢作如.pdf",
+  "path": "学与玩-玩转AI/第6期-AI 打造虚拟电报机-谢作如.pdf",
   "size_mb": 0.89,
   "collections": [
-   "学与玩"
+   "学与玩-玩转AI"
   ],
   "pages": 2,
   "thumb": "thumbs/dc4e135f43.jpg"
+ },
+ {
+  "id": "a09d508c53",
+  "title": "AI 制作对战游戏",
+  "author": "王国芳",
+  "year": null,
+  "issue": "第9期",
+  "magazine": "学与玩",
+  "topic": "人工智能教育",
+  "path": "学与玩-玩转AI/第9期-AI 制作对战游戏-王国芳.pdf",
+  "size_mb": 1.1,
+  "collections": [
+   "学与玩-玩转AI"
+  ],
+  "pages": 2,
+  "thumb": "thumbs/a09d508c53.jpg"
  }
 ]
