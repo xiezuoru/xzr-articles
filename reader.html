@@ -10,9 +10,13 @@
 body{background:var(--bg);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
 #bar{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;background:var(--bar);color:var(--ink);padding:8px 14px;font-size:13.5px}
 #bar .title{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+/* 顶栏「上一篇 / 下一篇」：与返回首页同处导航位，窄屏随 flex-wrap 换行 */
+#bar a.nav.off{opacity:.34;pointer-events:none;cursor:default}
 #bar button,#bar a{background:#4a4d51;color:var(--ink);border:none;border-radius:6px;padding:5px 12px;font-size:13px;cursor:pointer;text-decoration:none;white-space:nowrap}
 #bar button:hover,#bar a:hover{background:#5c6065}
 #zoomv{min-width:44px;text-align:center;color:#bbb}
+/* 缩放三件套作为一个整体，窄屏换行时不至于「－」和「＋」被拆到两行 */
+#bar .zoomgrp{display:flex;align-items:center;gap:12px}
 #pages{max-width:960px;margin:18px auto 60px;padding:0 12px}
 .page{position:relative;margin:0 auto 14px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.35)}
 .page canvas{display:block;width:100%;height:auto}
@@ -20,7 +24,8 @@ body{background:var(--bg);font-family:-apple-system,"PingFang SC","Microsoft YaH
 #status{color:#ddd;text-align:center;padding:80px 20px;font-size:14px;line-height:1.9}
 /* 窄屏（微信内置浏览器等）：标题独占一行，避免被缩放/下载按钮挤成 0 宽 */
 @media (max-width:560px){
-  #bar{flex-wrap:wrap;gap:8px;padding:8px 12px}
+  #bar{flex-wrap:wrap;gap:6px;padding:8px 12px}
+  #bar .zoomgrp{gap:6px}
   #bar .title{order:-1;flex:1 0 100%;white-space:normal;
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
     line-height:1.4}
@@ -30,6 +35,18 @@ body{background:var(--bg);font-family:-apple-system,"PingFang SC","Microsoft YaH
 #status .acts{margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 #status .acts a{background:#4a4d51;color:var(--ink);border-radius:6px;padding:8px 16px;font-size:13.5px;text-decoration:none}
 #status .acts a:hover{background:#5c6065}
+/* 文章底部的上一篇/下一篇：读完长文后不必滚回顶部 */
+#navb{max-width:960px;margin:28px auto 0;padding:0 16px;display:flex;gap:10px;
+  justify-content:space-between;align-items:center}
+#navb[hidden]{display:none}
+#navb a{flex:0 1 auto;min-width:0;max-width:42%;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;background:#4a4d51;color:var(--ink);border-radius:6px;
+  padding:9px 14px;font-size:13.5px;text-decoration:none}
+#navb a:hover{background:#5c6065}
+#navb a.off{opacity:.34;pointer-events:none;cursor:default}
+#navb a.mid{background:transparent;color:#b9bdc0;padding:9px 6px}
+#navb a.mid:hover{background:transparent;color:var(--accent);text-decoration:underline}
+
 /* 页脚：深色阅读页下的友情链接与本站网址 */
 #foot{max-width:960px;margin:0 auto 46px;padding:20px 16px 0;
   border-top:1px solid #6a6e72;text-align:center;color:#b9bdc0;font-size:12.5px;line-height:2}
@@ -44,12 +61,20 @@ body{background:var(--bg);font-family:-apple-system,"PingFang SC","Microsoft YaH
 <body>
 <div id="bar">
   <a href="index.html" title="返回首页">← 谢作如文集</a>
+  <a class="nav off" id="prev" href="#">‹ 上一篇</a>
+  <a class="nav off" id="next" href="#">下一篇 ›</a>
   <span class="title" id="ttl">加载中……</span>
-  <button id="zout">－</button><span id="zoomv">100%</span><button id="zin">＋</button>
+  <span class="zoomgrp"><button id="zout">－</button><span id="zoomv">100%</span><button id="zin">＋</button></span>
   <a id="dl" href="#" download>下载 PDF</a>
 </div>
 <div id="status">正在加载 PDF……</div>
 <div id="pages"></div>
+
+<nav id="navb" hidden>
+  <a id="prev2" href="#">‹ 上一篇</a>
+  <a class="mid" href="index.html">文章目录</a>
+  <a id="next2" href="#">下一篇 ›</a>
+</nav>
 
 <footer id="foot">
   <div class="friends">
@@ -65,6 +90,7 @@ body{background:var(--bg);font-family:-apple-system,"PingFang SC","Microsoft YaH
 
 <!-- PDF.js 优先用站点自带副本：国内网络（尤其微信内置浏览器）访问 cdnjs 常超时或失败，
      自带副本缺失时再动态回退 CDN。 -->
+<script src="config.js"></script>
 <script src="vendor/pdf.min.js"></script>
 <script>
 const PDFJS_CDN = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
@@ -89,6 +115,106 @@ document.title = title + " - 谢作如文集";
 document.getElementById("ttl").textContent = title;
 const dlEl = document.getElementById("dl");
 if (file) dlEl.href = file; else dlEl.style.display = "none";
+
+/* ===== 上一篇 / 下一篇 =====
+   顺序与首页列表完全一致（build.py 以 (year, title) 倒序输出），
+   所以「上一篇」= 更新的文章，「下一篇」= 更早的文章。 */
+let DATA = [], IDX = -1;
+const PDF_PREFIX = (window.ARTICLES_CONFIG && ARTICLES_CONFIG.PDF_BASE)
+  ? ARTICLES_CONFIG.PDF_BASE.replace(/\/+$/, "") + "/" : "";
+const pdfUrl = a => PDF_PREFIX + a.path.split("/").map(encodeURIComponent).join("/");
+// 与 index.html 的 readerUrl 保持一致：带 id 便于精确定位，id 缺失时按 PDF 路径兜底
+const readerUrl = a => "reader.html?file=" +
+  encodeURIComponent(new URL(pdfUrl(a), location.href).href) +
+  "&title=" + encodeURIComponent(a.title) +
+  "&id=" + encodeURIComponent(a.id);
+
+// 本地 file:// 双击打开时 fetch 本地文件被禁止，退回 <script> 加载 articles.js
+function loadDataByScript(base){
+  return new Promise(resolve => {
+    window.ARTICLES_DATA = undefined;
+    const s = document.createElement("script");
+    s.src = base + "articles.js";
+    s.onload = () => resolve(
+      Array.isArray(window.ARTICLES_DATA) && window.ARTICLES_DATA.length
+        ? window.ARTICLES_DATA : null);
+    s.onerror = () => resolve(null);
+    document.head.appendChild(s);
+  });
+}
+// 同 index.html：Cloudflare Pages 对不存在的路径也回 200 兜底页，
+// 必须校验 content-type 与 JSON 结构，再退回 articles.js
+async function loadData(){
+  for (const b of ["", "site/dist/"]){
+    try{
+      const r = await fetch(b + "articles.json");
+      if (!r.ok) continue;
+      if ((r.headers.get("content-type") || "").includes("html")) continue;
+      const d = await r.json();
+      if (Array.isArray(d) && d.length) return d;
+    }catch(e){}
+  }
+  for (const b of ["site/dist/", ""]){
+    const d = await loadDataByScript(b);
+    if (d) return d;
+  }
+  return null;
+}
+
+function locate(){
+  const byId = params.get("id");
+  if (byId){
+    const i = DATA.findIndex(a => a.id === byId);
+    if (i >= 0) return i;
+  }
+  if (!file) return -1;
+  let target;
+  try { target = decodeURIComponent(new URL(file, location.href).pathname); }
+  catch(e){ target = decodeURIComponent(file); }
+  return DATA.findIndex(a => target.endsWith("/" + a.path));
+}
+
+function wireNav(){
+  const label = d => d < 0 ? "上一篇" : "下一篇";
+  const link = (node, d) => {
+    if (!node) return;
+    const j = IDX + d;
+    const a = (IDX >= 0 && j >= 0 && j < DATA.length) ? DATA[j] : null;
+    if (!a){                       // 首篇 / 末篇：置灰且不可点
+      node.classList.add("off");
+      node.removeAttribute("href");
+      node.title = "";
+      return;
+    }
+    node.classList.remove("off");
+    node.href = readerUrl(a);
+    node.title = label(d) + "：" + a.title + (a.year ? "（" + a.year + "）" : "");
+  };
+  [["prev", -1], ["next", 1], ["prev2", -1], ["next2", 1]].forEach(([id, d]) =>
+    link(document.getElementById(id), d));
+  if (IDX >= 0) document.getElementById("navb").hidden = false;
+}
+
+// 左右方向键翻篇（输入框内不拦截）
+document.addEventListener("keydown", e => {
+  if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+  const t = ((e.target && e.target.tagName) || "").toLowerCase();
+  if (t === "input" || t === "textarea" || t === "select") return;
+  const node = e.key === "ArrowLeft" ? document.getElementById("prev")
+             : e.key === "ArrowRight" ? document.getElementById("next") : null;
+  if (node && node.getAttribute("href")) node.click();
+});
+
+// 导航只是增强：索引取不到也不影响正文阅读，因此单独 try/catch
+(async function initNav(){
+  try{
+    const d = await loadData();
+    if (!d) return;
+    DATA = d;
+    IDX = locate();
+    if (IDX >= 0) wireNav();
+  }catch(e){}
+})();
 
 let pdf = null, zoom = 1.0;
 const pagesEl = document.getElementById("pages");

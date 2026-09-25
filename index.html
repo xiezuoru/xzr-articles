@@ -156,9 +156,11 @@ const pdfUrl = a => (PDF_PREFIX || "") + a.path.split("/").map(encodeURIComponen
 // 所以链接要相对「页面」而不是数据目录：数据若在 site/dist/，线上会指向
 // 仓库里并不存在的路径（dist 内的网页副本不进 git），点击后被打回首页。
 // PDF 用绝对地址，保证阅读器位于任何位置都能取到文件。
+// 额外带上 id：阅读页据此精确定位当前文章，从而渲染「上一篇 / 下一篇」
 const readerUrl = a => "reader.html?file=" +
   encodeURIComponent(new URL(pdfUrl(a), location.href).href) +
-  "&title=" + encodeURIComponent(a.title);
+  "&title=" + encodeURIComponent(a.title) +
+  "&id=" + encodeURIComponent(a.id);
 const openReader = a => location.href = readerUrl(a);
 
 // 本地直接双击 index.html 打开时协议是 file://，浏览器禁止 fetch 本地文件，

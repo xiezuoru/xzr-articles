@@ -36,10 +36,155 @@ MAGAZINES = [
     "人大复印资料", "无线电", "学与玩", "中学生天地", "光明少年",
     "教育家", "基础教育课程", "创新人才教育", "教育视界",
     "实验教学与仪器", "教学月刊", "中国电化教育", "数字教育",
+    # —— 以下为补全元数据时新增（说明见 overrides.json 顶部）——
+    "中国教师报", "中国教育报", "远程教育杂志", "物理教师",
+    "教育研究与评论", "教育与装备研究", "浙江教育技术",
+    "新校长", "华附联盟", "爱上机器人",
+    "信息技术教育", "教育信息化",   # “信息技术教育”须排在两个长名之后
 ]
+
+# 某些专栏目录整体属于某年/某刊，文件名和子目录名里都看不出来
+COLLECTION_META = {
+    "学与玩-玩转AI": {"year": 2026},   # 该栏目 2026 年第 2~9 期连载
+}
 
 # 专栏/栏目词（出现时不当作标题）
 COLUMN_WORDS = {"对话", "创客三级跳", "新技能", "生活技术探究", "环球教育时讯"}
+
+# ==== 版面取证：从 PDF 页眉/页脚读取刊物名与年期编码 ====
+# 很多 PDF（尤其知网导出的）正文里查不到出处，但页眉/页脚印着英文刊名、
+# 官网域名或 "MAR. 2024 NO.05"、"2015/19"、"2019 年第 3 期" 这类年期编码，
+# 比文件名可靠。只认页眉页脚区域，避免把正文参考文献里的线索当成本文出处。
+LAYOUT_MAG = [
+    # 注意：chinaitedu.cn 与教师邮箱 teacher@chinaitedu.cn 属《中国信息技术教育》；
+    # 而 www.itedu.org.cn 是《中小学信息技术教育》官网（已由该刊 2015(7):8-10
+    # 《从机器人、STEM到创客教育》的「本期策划」页眉互证），两者不可合并。
+    (re.compile(r"chinaitedu\.cn|中国信息技术教育"), "中国信息技术教育"),
+    (re.compile(r"itedu\.org\.cn|中小学信息技术教育"), "中小学信息技术教育"),
+    (re.compile(r"China Science & Technology Education|中国科技教育"), "中国科技教育"),
+    (re.compile(r"人民教育|PEOPLE'?S EDUCATION"), "人民教育"),
+    (re.compile(r"光明少年|GUANGMING TEENS"), "光明少年"),
+    (re.compile(r"教育家|\bEDUCATOR\b"), "教育家"),
+    (re.compile(r"远程教育杂志|JOURNAL OF DISTANCE EDUCATION"), "远程教育杂志"),
+    (re.compile(r"创新人才教育|Innovative Talents"), "创新人才教育"),
+    (re.compile(r"中小学数字化教学"), "中小学数字化教学"),
+    (re.compile(r"浙江教育技术"), "浙江教育技术"),
+    (re.compile(r"教育与装备研究"), "教育与装备研究"),
+    (re.compile(r"教育研究与评论"), "教育研究与评论"),
+    (re.compile(r"物理教师|PHYSICS TEACHER"), "物理教师"),
+    (re.compile(r"中国教师报"), "中国教师报"),
+    (re.compile(r"中国教育报"), "中国教育报"),
+    (re.compile(r"中国电化教育"), "中国电化教育"),
+    (re.compile(r"信息技术教育"), "信息技术教育"),     # 兜底，须在上面两个长名之后
+]
+
+_MONTH_WORD = r"JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC"
+# 依次从强到弱：越靠后的写法越容易跟正文里的日期/页码混淆，
+# 所以只有页码年份与文件已有的年份一致（或本来就没年份）时才采信。
+RE_MONTH_CODE = re.compile(r"\b(" + _MONTH_WORD + r")\.?\s*(20\d{2})\s*NO\.?\s*(\d{1,2})", re.I)
+RE_CN_YEAR_ISSUE = re.compile(r"(20\d{2})\s*年\s*第\s*(\d+)\s*期")
+RE_CN_ISSUE = re.compile(r"第\s*(\d+)\s*期")
+RE_CN_VOL_ISSUE = re.compile(r"第\s*\d+\s*卷\s*第\s*(\d+)\s*期")
+RE_CN_YEAR = re.compile(r"(20\d{2})\s*年")
+RE_DOT_CODE = re.compile(r"(?<![\d.])(20\d{2})\s*\.\s*(\d{1,2})\b")
+RE_BULLET_CODE = re.compile(r"(?<![\d.])(20\d{2})\s*[●•·]\s*(\d{1,2})\b")
+RE_SLASH_CODE = re.compile(r"(?<![\d/／])(20\d{2})\s*[/／]\s*(\d{1,2})(?!\d)")
+# 扫描件里年份常被拆成 "2 0 0 6. 3" 这样
+RE_SPACED_DOT = re.compile(r"(?<![\d.])(\d)\s+(\d)\s+(\d)\s+(\d)\s*\.\s*(\d{1,2})(?!\d)")
+_FULL2HALF = str.maketrans("０１２３４５６７８９", "0123456789")
+
+
+def _bands(doc):
+    """取首页与末页的页眉页脚文本（含全角数字归一）。版面取证只看这两页。"""
+    out = []
+    for pi in ([0] if doc.page_count < 2 else [0, doc.page_count - 1]):
+        page = doc[pi]
+        H = page.rect.height
+        try:
+            blocks = page.get_text("blocks")
+        except Exception:
+            continue
+        band = " ".join(b[4] for b in blocks
+                        if b[1] < H * 0.17 or b[3] > H * 0.84)
+        if band.strip():
+            out.append(band.translate(_FULL2HALF))
+    return out
+
+
+def probe_layout(pdf_path, expect_year=None):
+    """从 PDF 首页/末页的页眉页脚推断 (刊物, 年份, 期号)，读不到返回 (None, None, None)。
+
+    模式按可靠性从强到弱逐个套用，且要求年份能与 expect_year 对上，
+    以免把正文里的 "2016.10" 之类当成本刊的期号。"""
+    try:
+        doc = fitz.open(pdf_path)
+    except Exception:
+        return None, None, None
+    try:
+        bands = _bands(doc)
+    except Exception:
+        bands = []
+    finally:
+        doc.close()
+    if not bands:
+        return None, None, None
+
+    def year_ok(y):
+        return expect_year is None or y == int(expect_year)
+
+    mag = None
+    for band in bands:
+        for rx, name in LAYOUT_MAG:
+            if rx.search(band):
+                mag = name
+                break
+        if mag:
+            break
+
+    # 1) 英文月份 + NO.N —— 最可靠
+    for band in bands:
+        m = RE_MONTH_CODE.search(band)
+        if m and year_ok(m.group(2)):
+            return mag, int(m.group(2)), f"第{int(m.group(3))}期"
+    # 2) 中文「YYYY 年第 N 期」
+    for band in bands:
+        m = RE_CN_YEAR_ISSUE.search(band)
+        if m and year_ok(m.group(1)):
+            return mag, int(m.group(1)), f"第{m.group(2)}期"
+    # 3) 「第 N 卷第 M 期」＋「YYYY 年」
+    for band in bands:
+        m = RE_CN_VOL_ISSUE.search(band)
+        y = RE_CN_YEAR.search(band)
+        if m and y and year_ok(y.group(1)):
+            return mag, int(y.group(1)), f"第{m.group(1)}期"
+    # 4) YYYY.M / YYYY●M / YYYY/M / 被拆开的 "2 0 0 6. 3"
+    for band in bands:
+        for rx, gi, gj in ((RE_DOT_CODE, 1, 2), (RE_BULLET_CODE, 1, 2),
+                           (RE_SLASH_CODE, 1, 2)):
+            for m in rx.finditer(band):
+                if year_ok(m.group(gi)) and 1 <= int(m.group(gj)) <= 12:
+                    return mag, int(m.group(gi)), f"第{int(m.group(gj))}期"
+        m = RE_SPACED_DOT.search(band)
+        if m:
+            y = int("".join(m.group(k) for k in range(1, 5)))
+            if year_ok(y) and 1 <= int(m.group(5)) <= 12:
+                return mag, y, f"第{int(m.group(5))}期"
+    # 5) 版面里已经认准刊物，再认一个裸的「第 N 期」（双月刊常用）
+    if mag:
+        for band in bands:
+            m = RE_CN_ISSUE.search(band)
+            if m:
+                y = RE_CN_YEAR.search(band)
+                return mag, (int(y.group(1)) if y else None), f"第{m.group(1)}期"
+    # 6) 只拿到刊物和年份
+    year = None
+    for band in bands:
+        m = RE_CN_YEAR.search(band)
+        if m and year_ok(m.group(1)):
+            year = int(m.group(1))
+            break
+    return mag, year, None
+
 
 AUTHOR_RE = re.compile(r"_([一-龥]{2,4})$")
 DATE_RES = [
@@ -202,6 +347,18 @@ def main():
         base = rel.name
         if base in overrides:
             meta.update(overrides[base])
+        for f, v in COLLECTION_META.get(top_dir, {}).items():
+            if not meta.get(f):
+                meta[f] = v
+        # 文件名里没有的刊物/年份/期号，最后从版面（页眉页脚）里找
+        if not (meta["year"] and meta["magazine"] and meta["issue"]):
+            lmag, lyear, lissue = probe_layout(str(p), meta["year"])
+            if not meta["magazine"] and lmag:
+                meta["magazine"] = lmag
+            if not meta["year"] and lyear:
+                meta["year"] = lyear
+            if not meta["issue"] and lissue:
+                meta["issue"] = lissue
         if not meta["title"]:
             skipped.append(str(rel))
             meta["title"] = rel.stem
