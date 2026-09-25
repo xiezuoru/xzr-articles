@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>知网期号核对清单 · 谢作如文集</title>
+<style>
+  :root{
+    --bg:#f6f6f4; --card:#fff; --ink:#23262a; --dim:#6b7075; --line:#e2e2df;
+    --accent:#185fa5; --accent-soft:#e6f1fb; --ok:#0f6e56; --ok-soft:#e1f5ee;
+    --warn:#854f0b; --warn-soft:#faeeda;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+  header{position:sticky;top:0;z-index:10;background:rgba(246,246,244,.94);
+    backdrop-filter:saturate(1.6) blur(8px);border-bottom:1px solid var(--line);padding:14px 20px 10px}
+  h1{margin:0 0 4px;font-size:16px;font-weight:600}
+  .sub{color:var(--dim);font-size:12.5px;margin-bottom:10px}
+  .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  input[type=search],select{padding:6px 10px;border:1px solid var(--line);border-radius:7px;
+    background:#fff;color:var(--ink);font-size:13px;font-family:inherit}
+  input[type=search]{flex:1 1 220px;min-width:150px}
+  button{padding:6px 12px;border:1px solid var(--line);border-radius:7px;background:#fff;
+    color:var(--ink);font-size:13px;font-family:inherit;cursor:pointer}
+  button:hover{border-color:#b9bdc0}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  button.primary:hover{background:#0c447c;border-color:#0c447c}
+  .prog{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--dim)}
+  .track{width:170px;height:6px;border-radius:3px;background:#e6e6e3;overflow:hidden}
+  .fill{height:100%;width:0;background:var(--ok);transition:width .18s}
+  main{padding:16px 20px 90px;max-width:1180px;margin:0 auto}
+  .grp{margin:0 0 18px;border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden}
+  .gh{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fbfbfa;
+    border-bottom:1px solid var(--line);cursor:pointer;user-select:none}
+  .gh .nm{font-weight:500}
+  .gh .yr{color:var(--dim);font-size:12.5px}
+  .gh .n{margin-left:auto;color:var(--dim);font-size:12.5px}
+  .gh .cnt{color:var(--ok);font-size:12.5px}
+  .grp.collapsed .items{display:none}
+  .row{display:grid;grid-template-columns:minmax(0,1fr) 104px auto auto;gap:10px;
+    align-items:center;padding:9px 14px;border-top:1px solid var(--line)}
+  .row:first-child{border-top:0}
+  .row.done{background:var(--ok-soft)}
+  .ti{min-width:0}
+  .ti .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ti .f{color:#9a9ea2;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .issue{width:100%;padding:5px 8px;border:1px solid var(--line);border-radius:6px;
+    font:inherit;font-size:13px;text-align:center}
+  .issue:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+  a.sr{display:inline-block;padding:5px 10px;border:1px solid var(--line);border-radius:7px;
+    color:var(--accent);text-decoration:none;font-size:12.5px;white-space:nowrap;background:#fff}
+  a.sr:hover{background:var(--accent-soft);border-color:var(--accent)}
+  .tip{margin:0 0 14px;padding:11px 14px;border-radius:10px;background:var(--warn-soft);
+    color:var(--warn);font-size:12.5px;border:1px solid #f0dcb4}
+  .tip b{font-weight:600}
+  footer{position:fixed;left:0;right:0;bottom:0;background:rgba(246,246,244,.96);
+    border-top:1px solid var(--line);padding:10px 20px;display:flex;gap:10px;
+    align-items:center;flex-wrap:wrap;backdrop-filter:saturate(1.6) blur(8px)}
+  footer .grow{flex:1}
+  @media (max-width:620px){
+    .row{grid-template-columns:minmax(0,1fr) 84px;row-gap:6px}
+    .row .act{grid-column:2}
+    header{padding:12px 14px 8px}
+    main{padding:14px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>知网期号核对清单</h1>
+  <div class="sub">逐条点「查知网」→ 在弹出的结果页看一眼刊名与期号 → 填进右边的框。填完点底部「导出」。<b>数据只存在你本机浏览器里。</b></div>
+  <div class="bar">
+    <input type="search" id="q" placeholder="过滤标题 / 文件名…">
+    <label class="prog"><input type="checkbox" id="onlyUndone"> 只看未填</label>
+    <span class="prog"><span class="track"><span class="fill" id="fill"></span></span><span id="cnt"></span></span>
+  </div>
+</header>
+
+<main>
+  <div class="tip">
+    <b>为什么是手工点、不是自动抓？</b>知网的检索域 <code>kns.cnki.net</code> 对脚本和云 IP 一律下发滑块验证，
+    用自动化去绕既不稳定也违反知网的服务协议。所以这一页只做省事的整理工作：<b>直达链接 + 填写框 + 自动导出成 overrides 片段</b>。
+    你本机浏览器（温州电信 IP）访问知网是正常的，拖一次滑块能管一个会话。
+  </div>
+  <div id="list"></div>
+</main>
+
+<footer>
+  <button class="primary" id="exp">导出 overrides 片段</button>
+  <button id="copy">复制到剪贴板</button>
+  <button id="imp">导入进度</button>
+  <input type="file" id="impf" accept=".json" hidden>
+  <button id="clr">清空</button>
+  <span class="grow"></span>
+  <span class="sub" id="msg" style="margin:0"></span>
+</footer>
+
+<pre id="out" hidden style="position:fixed;inset:8% 8%;overflow:auto;background:#fff;border:1px solid #ccc;border-radius:12px;padding:16px;z-index:99;font-size:12.5px"></pre>
+
+<script>
+const DATA = [{"file":"QuickForm结合掌控板打造课堂智能反馈系统_才格力图.pdf","title":"QuickForm结合掌控板打造课堂智能反馈系统","year":2026,"magazine":"中国信息技术教育","q":"QuickForm结合掌控板打造课堂智能反馈系统"},{"file":"Quick_Form：让交互网页走出“数据孤岛”困境_谢作如.pdf","title":"QuickForm：让交互网页走出“数据孤岛”困境","year":2026,"magazine":"中国信息技术教育","q":"QuickForm 让交互网页走出 数据孤岛 困境"},{"file":"做一个可随身携带的QuickForm_陈亮.pdf","title":"做一个可随身携带的QuickForm","year":2026,"magazine":"中国信息技术教育","q":"做一个可随身携带的QuickForm"},{"file":"中国信息技术教育-让人工智能通识教育走向“学用结合”_谢作如.pdf","title":"让人工智能通识教育走向“学用结合”","year":2026,"magazine":"中国信息技术教育","q":"让人工智能通识教育走向 学用结合"},{"file":"走向Vibe_Coding_QuickForm的本地部署和功能升级_陈恩慈.pdf","title":"走向Vibe“Coding”QuickForm的本地部署和功能升级","year":2026,"magazine":"中国信息技术教育","q":"走向Vibe Coding QuickForm的本地部署和功能升级"},{"file":"通用智能体结合QuickForm开发动态专题学习网站——以“校园绿化植物探究平台”专题学习网站为例_黄青青.pdf","title":"通用智能体结合QuickForm开发动态专题学习网站——以“校园绿化植物探究平台”专题学习网站为例","year":2026,"magazine":"中国信息技术教育","q":"通用智能体结合QuickForm开发动态专题学习网站 以 校园绿化植物探究平台 专题学习网站为例"},{"file":"零代码基础开发智能硬件作品——基于“学用结合”理念的AI通识项目_安卓华.pdf","title":"零代码基础开发智能硬件作品——基于“学用结合”理念的AI通识项目","year":2026,"magazine":"中国信息技术教育","q":"零代码基础开发智能硬件作品 基于 学用结合 理念的AI通识项目"},{"file":"大咖寄语_谢作如.pdf","title":"大咖寄语","year":2026,"magazine":"学与玩","q":"大咖寄语"},{"file":"上海教育-浦育平台三招破解人工智能教育规模化困境_谢作如.pdf","title":"浦育平台三招破解人工智能教育规模化困境","year":2025,"magazine":"上海教育","q":"浦育平台三招破解人工智能教育规模化困境"},{"file":"借助大模型设计交互式课件_谢作如.pdf","title":"借助大模型设计交互式课件","year":2025,"magazine":"中国信息技术教育","q":"借助大模型设计交互式课件"},{"file":"基于TFJS技术训练的关键点模型如何在本地部署——以“手势分类”为例_钟以维.pdf","title":"基于TFJS技术训练的关键点模型如何在本地部署——以“手势分类”为例","year":2025,"magazine":"中国信息技术教育","q":"基于TFJS技术训练的关键点模型如何在本地部署 以 手势分类 为例"},{"file":"学生没有编程基础也能学AI——以无代码AI学习工具的开发为例_谢作如.pdf","title":"学生没有编程基础也能学AI——以无代码AI学习工具的开发为例","year":2025,"magazine":"中国信息技术教育","q":"学生没有编程基础也能学AI 以无代码AI学习工具的开发为例"},{"file":"当信息系统遇上人工智能之向量检索——多模态数据分析初体验_谢作如.pdf","title":"当信息系统遇上人工智能之向量检索——多模态数据分析初体验","year":2025,"magazine":"中国信息技术教育","q":"当信息系统遇上人工智能之向量检索 多模态数据分析初体验"},{"file":"用AI打造一个龙舟运动的体验装置_谷卓桓.pdf","title":"用AI打造一个龙舟运动的体验装置","year":2025,"magazine":"中国信息技术教育","q":"用AI打造一个龙舟运动的体验装置"},{"file":"用XEduHub推理网页前端训练的声音分类模型_谢作如.pdf","title":"用XEduHub推理网页前端训练的声音分类模型","year":2025,"magazine":"中国信息技术教育","q":"用XEduHub推理网页前端训练的声音分类模型"},{"file":"设计一个图像特征提取与比较实验_谢作如.pdf","title":"设计一个图像特征提取与比较实验","year":2025,"magazine":"中国信息技术教育","q":"设计一个图像特征提取与比较实验"},{"file":"设计一个模拟神经网络推理的不插电游戏_谢作如.pdf","title":"设计一个模拟神经网络推理的不插电游戏","year":2025,"magazine":"中国信息技术教育","q":"设计一个模拟神经网络推理的不插电游戏"},{"file":"中小学信息技术教育-中小学开展人工智能通识教育“难”在哪里_谢作如.pdf","title":"中小学开展人工智能通识教育“难”在哪里","year":2025,"magazine":"中小学信息技术教育","q":"中小学开展人工智能通识教育 难 在哪里"},{"file":"中小学信息技术教育-我们需要什么样的人工智能通识教育教材_谢作如.pdf","title":"我们需要什么样的人工智能通识教育教材","year":2025,"magazine":"中小学信息技术教育","q":"我们需要什么样的人工智能通识教育教材"},{"file":"人民教育-中小学教师如何学习和应用人工智能_谢作如.pdf","title":"中小学教师如何学习和应用人工智能","year":2025,"magazine":"人民教育","q":"中小学教师如何学习和应用人工智能"},{"file":"Mind+结合XEdu_Hub开发AI交互作品_谢作如.pdf","title":"Mind+结合XEduHub开发AI交互作品","year":2024,"magazine":"中国信息技术教育","q":"Mind+结合XEduHub开发AI交互作品"},{"file":"Mind+遇上EasyTr...也能开发“个性化”AI项目_谢作如.pdf","title":"Mind+遇上EasyTr...也能开发“个性化”AI项目","year":2024,"magazine":"中国信息技术教育","q":"Mind+遇上EasyTr...也能开发 个性化 AI项目"},{"file":"XEduLLM：让大模型进入中小学信息科技课_谢作如.pdf","title":"XEduLLM：让大模型进入中小学信息科技课","year":2024,"magazine":"中国信息技术教育","q":"XEduLLM 让大模型进入中小学信息科技课"},{"file":"“学科融合”理念下的中草药种植项目的设计和实施_梅捷凯.pdf","title":"“学科融合”理念下的中草药种植项目的设计和实施","year":2024,"magazine":"中国信息技术教育","q":"学科融合 理念下的中草药种植项目的设计和实施"},{"file":"基于开源软硬件搭建校园未来农场_郑祥.pdf","title":"基于开源软硬件搭建校园未来农场","year":2024,"magazine":"中国信息技术教育","q":"基于开源软硬件搭建校园未来农场"},{"file":"当劳动教育遇上人工智能——探索劳动科创应用的新路径_林淼焱.pdf","title":"当劳动教育遇上人工智能——探索劳动科创应用的新路径","year":2024,"magazine":"中国信息技术教育","q":"当劳动教育遇上人工智能 探索劳动科创应用的新路径"},{"file":"用OpenHydra搭建本地人工智能教学平台_谢作如.pdf","title":"用OpenHydra搭建本地人工智能教学平台","year":2024,"magazine":"中国信息技术教育","q":"用OpenHydra搭建本地人工智能教学平台"},{"file":"用人工智能解决真实问题的技术地图_谢作如.pdf","title":"用人工智能解决真实问题的技术地图","year":2024,"magazine":"中国信息技术教育","q":"用人工智能解决真实问题的技术地图"},{"file":"设计一个低门槛的AI硬件交互活动_谢作如.pdf","title":"设计一个低门槛的AI硬件交互活动","year":2024,"magazine":"中国信息技术教育","q":"设计一个低门槛的AI硬件交互活动"},{"file":"中国信息技术教育-走向“智能计算”时代的计算思维_谢作如.pdf","title":"走向“智能计算”时代的计算思维","year":2024,"magazine":"中国信息技术教育","q":"走向 智能计算 时代的计算思维"},{"file":"青少年AI教育：从应用技术到引领未来_谢作如.pdf","title":"青少年AI教育：从应用技术到引领未来","year":2024,"magazine":"中国信息技术教育","q":"青少年AI教育 从应用技术到引领未来"},{"file":"借助XEduHub快速开发人工智能体验作品_邱奕盛.pdf","title":"借助XEduHub快速开发人工智能体验作品","year":2024,"magazine":"中国科技教育","q":"借助XEduHub快速开发人工智能体验作品"},{"file":"把机器人小车升级为无人驾驶小车_谢作如.pdf","title":"把机器人小车升级为无人驾驶小车","year":2024,"magazine":"中国科技教育","q":"把机器人小车升级为无人驾驶小车"},{"file":"设计一个有AI味的启动仪式道具_谢作如.pdf","title":"设计一个有AI味的启动仪式道具","year":2024,"magazine":"中国科技教育","q":"设计一个有AI味的启动仪式道具"},{"file":"中小学信息技术教育202409新一代人工智能发展与信息科技教育面临的挑战-钟柏昌.pdf","title":"202409新一代人工智能发展与信息科技教育面临的挑战","year":2024,"magazine":"中小学信息技术教育","q":"202409新一代人工智能发展与信息科技教育面临的挑战"},{"file":"直面挑战,如何让AI为自己赋能__谢作如.pdf","title":"直面挑战,如何让AI为自己赋能","year":2024,"magazine":"光明少年","q":"直面挑战,如何让AI为自己赋能"},{"file":"中小学需要什么样的人工智能教育_谢作如.pdf","title":"中小学需要什么样的人工智能教育","year":2024,"magazine":"教育家","q":"中小学需要什么样的人工智能教育"},{"file":"中小学人工智能课程需要何种...件？——现状分析与发展方向_钟柏昌.pdf","title":"中小学人工智能课程需要何种...件？——现状分析与发展方向","year":2024,"magazine":"远程教育杂志","q":"中小学人工智能课程需要何种...件 现状分析与发展方向"},{"file":"为人工智能应用程序设计图形用户界面_谢作如.pdf","title":"为人工智能应用程序设计图形用户界面","year":2023,"magazine":"中国信息技术教育","q":"为人工智能应用程序设计图形用户界面"},{"file":"为信息科技教学定制一个Python编程环境_谢作如.pdf","title":"为信息科技教学定制一个Python编程环境","year":2023,"magazine":"中国信息技术教育","q":"为信息科技教学定制一个Python编程环境"},{"file":"借助AI模型预测障碍物方向_谢作如.pdf","title":"借助AI模型预测障碍物方向","year":2023,"magazine":"中国信息技术教育","q":"借助AI模型预测障碍物方向"},{"file":"借助Gradio制作AI体验活动的教学课件_谢作如.pdf","title":"借助Gradio制作AI体验活动的教学课件","year":2023,"magazine":"中国信息技术教育","q":"借助Gradio制作AI体验活动的教学课件"},{"file":"借助商业服务破解AI科创活动的算力难题_谢作如.pdf","title":"借助商业服务破解AI科创活动的算力难题","year":2023,"magazine":"中国信息技术教育","q":"借助商业服务破解AI科创活动的算力难题"},{"file":"在行空板上部署Web前端训练的AI模型_谢作如.pdf","title":"在行空板上部署Web前端训练的AI模型","year":2023,"magazine":"中国信息技术教育","q":"在行空板上部署Web前端训练的AI模型"},{"file":"基于XEdu开发无代码训练AI模型插件_谢作如.pdf","title":"基于XEdu开发无代码训练AI模型插件","year":2023,"magazine":"中国信息技术教育","q":"基于XEdu开发无代码训练AI模型插件"},{"file":"用XEdu做一个趣味甲骨文学习系统_陆雅楠.pdf","title":"用XEdu做一个趣味甲骨文学习系统","year":2023,"magazine":"中国信息技术教育","q":"用XEdu做一个趣味甲骨文学习系统"},{"file":"让ESP32-CAM小车“智能”起来_谢作如.pdf","title":"让ESP32-CAM小车“智能”起来","year":2023,"magazine":"中国信息技术教育","q":"让ESP32 CAM小车 智能 起来"},{"file":"让掌控板也能识别语音——对听障助手项目的进一步改造_谢作如.pdf","title":"让掌控板也能识别语音——对听障助手项目的进一步改造","year":2023,"magazine":"中国信息技术教育","q":"让掌控板也能识别语音 对听障助手项目的进一步改造"},{"file":"让行空板变身为能识别方言的智能音箱_谢作如.pdf","title":"让行空板变身为能识别方言的智能音箱","year":2023,"magazine":"中国信息技术教育","q":"让行空板变身为能识别方言的智能音箱"},{"file":"当人工智能遇上青少年科技创新活动_谢作如.pdf","title":"当人工智能遇上青少年科技创新活动","year":2023,"magazine":"中国科技教育","q":"当人工智能遇上青少年科技创新活动"},{"file":"让学生真正理解数据、算法和...人工智能教育教什么和怎么教_谢作如.pdf","title":"让学生真正理解数据、算法和...人工智能教育教什么和怎么教","year":2023,"magazine":"中小学信息技术教育","q":"让学生真正理解数据 算法和...人工智能教育教什么和怎么教"},{"file":"2022_人工智能教育从单一走向多元_谢作如.pdf","title":"2022人工智能教育从单一走向多元","year":2022,"magazine":"中国信息技术教育","q":"2022人工智能教育从单一走向多元"},{"file":"中小学AI教育需要怎样的学习工具_吴俊杰 (1).pdf","title":"中小学AI教育需要怎样的学习工具吴俊杰 (1)","year":2022,"magazine":"中国信息技术教育","q":"中小学AI教育需要怎样的学习工具吴俊杰 1"},{"file":"信息2022年01月-上-用Python写一款App Inventor 网络微数据库服务器.pdf","title":"信息2022年01月-上-用Python写一款App Inventor 网络微数据库服务器","year":2022,"magazine":"中国信息技术教育","q":"信息2022年01月 上 用Python写一款App Inventor 网络微数据库服务器"},{"file":"信息2022年10月上-用Python实现图片“隐写术”.pdf","title":"信息2022年10月上-用Python实现图片“隐写术”","year":2022,"magazine":"中国信息技术教育","q":"信息2022年10月上 用Python实现图片 隐写术"},{"file":"信息2022年11月上-设计可交互的AI背景墙.pdf","title":"信息2022年11月上-设计可交互的AI背景墙","year":2022,"magazine":"中国信息技术教育","q":"信息2022年11月上 设计可交互的AI背景墙"},{"file":"信息2022年12月上-当MMEdu遇上行空板.pdf","title":"信息2022年12月上-当MMEdu遇上行空板","year":2022,"magazine":"中国信息技术教育","q":"信息2022年12月上 当MMEdu遇上行空板"},{"file":"信息2022年3月上合-用Home Assistant 搭建个性化智能家居系统.pdf","title":"信息2022年3月上合-用Home Assistant 搭建个性化智能家居系统","year":2022,"magazine":"中国信息技术教育","q":"信息2022年3月上合 用Home Assistant 搭建个性化智能家居系统"},{"file":"信息2022年4月上-用掌控板做智能家居控制器.pdf","title":"信息2022年4月上-用掌控板做智能家居控制器","year":2022,"magazine":"中国信息技术教育","q":"信息2022年4月上 用掌控板做智能家居控制器"},{"file":"信息2022年5月上-用深度学习和物联网技术 设计“AI魔法棒”.pdf","title":"信息2022年5月上-用深度学习和物联网技术 设计“AI魔法棒”","year":2022,"magazine":"中国信息技术教育","q":"信息2022年5月上 用深度学习和物联网技术 设计 AI魔法棒"},{"file":"信息2022年6月上-让激光射灯也“智能”起来.pdf","title":"信息2022年6月上-让激光射灯也“智能”起来","year":2022,"magazine":"中国信息技术教育","q":"信息2022年6月上 让激光射灯也 智能 起来"},{"file":"信息2022年7月上-巧用Python创建个性化数据集.pdf","title":"信息2022年7月上-巧用Python创建个性化数据集","year":2022,"magazine":"中国信息技术教育","q":"信息2022年7月上 巧用Python创建个性化数据集"},{"file":"信息2022年8月上-可触发拍照“电子眼”作品的升级实现.pdf","title":"信息2022年8月上-可触发拍照“电子眼”作品的升级实现","year":2022,"magazine":"中国信息技术教育","q":"信息2022年8月上 可触发拍照 电子眼 作品的升级实现"},{"file":"信息2022年9月上-打造个性化的“智能稻草人”.pdf","title":"信息2022年9月上-打造个性化的“智能稻草人”","year":2022,"magazine":"中国信息技术教育","q":"信息2022年9月上 打造个性化的 智能稻草人"},{"file":"如何设计面向中学生的深度学习活动_陆雅楠.pdf","title":"如何设计面向中学生的深度学习活动","year":2022,"magazine":"中国信息技术教育","q":"如何设计面向中学生的深度学习活动"},{"file":"推进中小学人工智能实验教学新探索_樊磊.pdf","title":"推进中小学人工智能实验教学新探索","year":2022,"magazine":"中国信息技术教育","q":"推进中小学人工智能实验教学新探索"},{"file":"用新一代人工智能技术解决真实问题_谈中小学AI科创活动的开展_谢作如.pdf","title":"用新一代人工智能技术解决真实问题谈中小学AI科创活动的开展","year":2022,"magazine":"中国信息技术教育","q":"用新一代人工智能技术解决真实问题谈中小学AI科创活动的开展"},{"file":"SFarm开源智慧农场_一个真实的物联网技术实践场_谢作如.pdf","title":"SFarm开源智慧农场一个真实的物联网技术实践场","year":2021,"magazine":"中国信息技术教育","q":"SFarm开源智慧农场一个真实的物联网技术实践场"},{"file":"与时俱进_用更合适的方式学习物联_..._息技术教材内置项目的_升级_分析_谢作如.pdf","title":"与时俱进“用更合适的方式学习物联……息技术教材内置项目的”升级分析","year":2021,"magazine":"中国信息技术教育","q":"与时俱进 用更合适的方式学习物联 息技术教材内置项目的 升级分析"},{"file":"从开源开放到教育自信_谈具有中国特色的开源软硬件教育应用_李红印.pdf","title":"从开源开放到教育自信谈具有中国特色的开源软硬件教育应用","year":2021,"magazine":"中国信息技术教育","q":"从开源开放到教育自信谈具有中国特色的开源软硬件教育应用"},{"file":"信息2021年01月-上-用Python让多人“共享”扫描仪.pdf","title":"信息2021年01月-上-用Python让多人“共享”扫描仪","year":2021,"magazine":"中国信息技术教育","q":"信息2021年01月 上 用Python让多人 共享 扫描仪"},{"file":"信息2021年03月-上-用模拟蓝牙键盘的方式远程采集实验数据.pdf","title":"信息2021年03月-上-用模拟蓝牙键盘的方式远程采集实验数据","year":2021,"magazine":"中国信息技术教育","q":"信息2021年03月 上 用模拟蓝牙键盘的方式远程采集实验数据"},{"file":"信息2021年04月-上-为SIoT写一个物联网设备管理插件.pdf","title":"信息2021年04月-上-为SIoT写一个物联网设备管理插件","year":2021,"magazine":"中国信息技术教育","q":"信息2021年04月 上 为SIoT写一个物联网设备管理插件"},{"file":"信息2021年10月上-用Mind+做一个智能军旗裁判器.pdf","title":"信息2021年10月上-用Mind+做一个智能军旗裁判器","year":2021,"magazine":"中国信息技术教育","q":"信息2021年10月上 用Mind+做一个智能军旗裁判器"},{"file":"信息2021年11月上-用虚谷号搭建文档高拍仪原型.pdf","title":"信息2021年11月上-用虚谷号搭建文档高拍仪原型","year":2021,"magazine":"中国信息技术教育","q":"信息2021年11月上 用虚谷号搭建文档高拍仪原型"},{"file":"信息2021年12月上-用Python写一个简单的 作业实时反馈系统.pdf","title":"信息2021年12月上-用Python写一个简单的 作业实时反馈系统","year":2021,"magazine":"中国信息技术教育","q":"信息2021年12月上 用Python写一个简单的 作业实时反馈系统"},{"file":"信息2021年5月上-用Python写一个基于Web的 物联网应用程序.pdf","title":"信息2021年5月上-用Python写一个基于Web的 物联网应用程序","year":2021,"magazine":"中国信息技术教育","q":"信息2021年5月上 用Python写一个基于Web的 物联网应用程序"},{"file":"信息2021年6月上-让虚谷号定时执行任务.pdf","title":"信息2021年6月上-让虚谷号定时执行任务","year":2021,"magazine":"中国信息技术教育","q":"信息2021年6月上 让虚谷号定时执行任务"},{"file":"信息2021年7月上-做一个可以远程管理的虚拟语音播报员.pdf","title":"信息2021年7月上-做一个可以远程管理的虚拟语音播报员","year":2021,"magazine":"中国信息技术教育","q":"信息2021年7月上 做一个可以远程管理的虚拟语音播报员"},{"file":"信息2021年8月上-用PyWebIO“交互” 呈现人工智能学习成果.pdf","title":"信息2021年8月上-用PyWebIO“交互” 呈现人工智能学习成果","year":2021,"magazine":"中国信息技术教育","q":"信息2021年8月上 用PyWebIO 交互 呈现人工智能学习成果"},{"file":"信息2021年9月上-用掌控板做课堂答题器.pdf","title":"信息2021年9月上-用掌控板做课堂答题器","year":2021,"magazine":"中国信息技术教育","q":"信息2021年9月上 用掌控板做课堂答题器"},{"file":"开源智慧农场项目支持下的高中物联网课程设计_卢华军.pdf","title":"开源智慧农场项目支持下的高中物联网课程设计","year":2021,"magazine":"中国信息技术教育","q":"开源智慧农场项目支持下的高中物联网课程设计"},{"file":"我们的征途是星辰大海_对国产操作系统进教育的思考_梁森山.pdf","title":"我们的征途是星辰大海对国产操作系统进教育的思考","year":2021,"magazine":"中国信息技术教育","q":"我们的征途是星辰大海对国产操作系统进教育的思考"},{"file":"让校园创意和产品开发_无缝_联接_谈乾坤板的设计_胡岳.pdf","title":"让校园创意和产品开发“无缝”联接谈乾坤板的设计","year":2021,"magazine":"中国信息技术教育","q":"让校园创意和产品开发 无缝 联接谈乾坤板的设计"},{"file":"面向未来_创客教育该怎么走_谢作如.pdf","title":"面向未来创客教育该怎么走","year":2021,"magazine":"中国信息技术教育","q":"面向未来创客教育该怎么走"},{"file":"_物联网与大数据创意实验_课程的重新设计_刘正云.pdf","title":"“物联网与大数据创意实验”课程的重新设计","year":2020,"magazine":"中国信息技术教育","q":"物联网与大数据创意实验 课程的重新设计"},{"file":"_用安卓手机控制开源硬件_教学设计_郑祥.pdf","title":"“用安卓手机控制开源硬件”教学设计","year":2020,"magazine":"中国信息技术教育","q":"用安卓手机控制开源硬件 教学设计"},{"file":"信息2020年10月（上）-face_recognition结合pinpong 开发人脸识别门禁.pdf","title":"信息2020年10月（上）-facerecognition结合pinpong 开发人脸识别门禁","year":2020,"magazine":"中国信息技术教育","q":"信息2020年10月 上 facerecognition结合pinpong 开发人脸识别门禁"},{"file":"信息2020年11月（上）-一只光敏电阻玩转“小恐龙”游戏.pdf","title":"信息2020年11月（上）-一只光敏电阻玩转“小恐龙”游戏","year":2020,"magazine":"中国信息技术教育","q":"信息2020年11月 上 一只光敏电阻玩转 小恐龙 游戏"},{"file":"信息2020年12月（上）-做一个“真实可用”的自动加湿器.pdf","title":"信息2020年12月（上）-做一个“真实可用”的自动加湿器","year":2020,"magazine":"中国信息技术教育","q":"信息2020年12月 上 做一个 真实可用 的自动加湿器"},{"file":"信息2020年1月（上）-让虚谷号陪我“吟诗作对”.pdf","title":"信息2020年1月（上）-让虚谷号陪我“吟诗作对”","year":2020,"magazine":"中国信息技术教育","q":"信息2020年1月 上 让虚谷号陪我 吟诗作对"},{"file":"信息2020年3月（合）-用Scratch来模拟肺炎传染有多可怕.pdf","title":"信息2020年3月（合）-用Scratch来模拟肺炎传染有多可怕","year":2020,"magazine":"中国信息技术教育","q":"信息2020年3月 合 用Scratch来模拟肺炎传染有多可怕"},{"file":"信息2020年4月（上）-MakerBrush结合激光切割机设计立体模型.pdf","title":"信息2020年4月（上）-MakerBrush结合激光切割机设计立体模型","year":2020,"magazine":"中国信息技术教育","q":"信息2020年4月 上 MakerBrush结合激光切割机设计立体模型"},{"file":"信息2020年5月（上）-用GitHub协同共建一个“开源”网站.pdf","title":"信息2020年5月（上）-用GitHub协同共建一个“开源”网站","year":2020,"magazine":"中国信息技术教育","q":"信息2020年5月 上 用GitHub协同共建一个 开源 网站"},{"file":"信息2020年6月（上）-全自动玩转小程序“数独”.pdf","title":"信息2020年6月（上）-全自动玩转小程序“数独”","year":2020,"magazine":"中国信息技术教育","q":"信息2020年6月 上 全自动玩转小程序 数独"},{"file":"信息2020年7月（合）-换个思路挑战“小恐龙”游戏.pdf","title":"信息2020年7月（合）-换个思路挑战“小恐龙”游戏","year":2020,"magazine":"中国信息技术教育","q":"信息2020年7月 合 换个思路挑战 小恐龙 游戏"},{"file":"信息2020年8月（合）-用画流程图的方式开发物联网应用.pdf","title":"信息2020年8月（合）-用画流程图的方式开发物联网应用","year":2020,"magazine":"中国信息技术教育","q":"信息2020年8月 合 用画流程图的方式开发物联网应用"},{"file":"信息2020年9月（上）-pinpong让开源硬件的编程更加简单.pdf","title":"信息2020年9月（上）-pinpong让开源硬件的编程更加简单","year":2020,"magazine":"中国信息技术教育","q":"信息2020年9月 上 pinpong让开源硬件的编程更加简单"},{"file":"借助开源硬件开展人工智能实验教学_以虚谷号为例_谢作如.pdf","title":"借助开源硬件开展人工智能实验教学以虚谷号为例","year":2020,"magazine":"中国信息技术教育","q":"借助开源硬件开展人工智能实验教学以虚谷号为例"},{"file":"创客教育和STEM教育的2020展望_谢作如.pdf","title":"创客教育和STEM教育的2020展望","year":2020,"magazine":"中国信息技术教育","q":"创客教育和STEM教育的2020展望"},{"file":"开源硬件和信息技术实验_谢作如.pdf","title":"开源硬件和信息技术实验","year":2020,"magazine":"中国信息技术教育","q":"开源硬件和信息技术实验"},{"file":"课程开发者的对话_新技术如何真正走进中小学课堂2.0_谢作如.pdf","title":"课程开发者的对话新技术如何真正走进中小学课堂2.0","year":2020,"magazine":"中国信息技术教育","q":"课程开发者的对话新技术如何真正走进中小学课堂2.0"},{"file":"当中秋赏月遇上物联网_吴宁静.pdf","title":"当中秋赏月遇上物联网","year":2019,"magazine":"中国信息技术教育","q":"当中秋赏月遇上物联网"},{"file":"让_物联网和大数据_走进中小学课堂_我和_虚谷物联_项目的故事_谢作如.pdf","title":"让“物联网和大数据”走进中小学课堂“我和”虚谷物联项目的故事","year":2019,"magazine":"中国信息技术教育","q":"让 物联网和大数据 走进中小学课堂 我和 虚谷物联项目的故事"},{"file":"高中信息技术课程中的传感与控制实验_谢作如.pdf","title":"高中信息技术课程中的传感与控制实验","year":2019,"magazine":"中国信息技术教育","q":"高中信息技术课程中的传感与控制实验"},{"file":"基于产品的学习_创客生产生活方式的教育启蒙_吴俊杰.pdf","title":"基于产品的学习创客生产生活方式的教育启蒙","year":2018,"magazine":"中国信息技术教育","q":"基于产品的学习创客生产生活方式的教育启蒙"},{"file":"基于国家课程实施创客教育_以综合实践活动课程为例_谢作如.pdf","title":"基于国家课程实施创客教育以综合实践活动课程为例","year":2018,"magazine":"中国信息技术教育","q":"基于国家课程实施创客教育以综合实践活动课程为例"},{"file":"高中新课标_开源硬件项目设计_模块_中国开源硬件的梦与路_谢作如.pdf","title":"高中新课标“开源硬件项目设计”模块中国开源硬件的梦与路","year":2018,"magazine":"中国信息技术教育","q":"高中新课标 开源硬件项目设计 模块中国开源硬件的梦与路"},{"file":"创客教育这七年_谢作如.pdf","title":"创客教育这七年","year":2018,"magazine":"中小学信息技术教育","q":"创客教育这七年"},{"file":"2018-9-浙江教学研究-三位一体的创客教育实践研究.pdf","title":"9-三位一体的创客教育实践研究","year":2018,"magazine":"浙江教学研究","q":"9 三位一体的创客教育实践研究"},{"file":"对话-中国开源硬件的梦与路.pdf","title":"中国开源硬件的梦与路","year":2017,"magazine":"中国信息技术教育","q":"中国开源硬件的梦与路"},{"file":"十年_创客教育回首与展望_肖文鹏.pdf","title":"十年创客教育回首与展望","year":2017,"magazine":"中国信息技术教育","q":"十年创客教育回首与展望"},{"file":"人工智能教育呼唤跨学科学习_谢作如.pdf","title":"人工智能教育呼唤跨学科学习","year":2017,"magazine":"中国教师报","q":"人工智能教育呼唤跨学科学习"},{"file":"2016-12-制作“智能”的荧光舞道具.pdf","title":"12-制作“智能”的荧光舞道具","year":2016,"magazine":"中国信息技术教育","q":"12 制作 智能 的荧光舞道具"},{"file":"2016_做好迎接创客教育的准备_谢作如.pdf","title":"2016做好迎接创客教育的准备","year":2016,"magazine":"中国信息技术教育","q":"2016做好迎接创客教育的准备"},{"file":"是求根溯源_更是扬鞭奋蹄_简评__省略_中国创客教育蓝皮书_基础教育版_谢作如.pdf","title":"是求根溯源“更是扬鞭奋蹄”简评“……中国创客教育蓝皮书”基础教育版","year":2016,"magazine":"中国信息技术教育","q":"是求根溯源 更是扬鞭奋蹄 简评 中国创客教育蓝皮书 基础教育版"},{"file":"创客教育的DNA_谢作如.pdf","title":"创客教育的DNA","year":2016,"magazine":"人民教育","q":"创客教育的DNA"},{"file":"2015.10（上）-基于摄像头的手势控制小车.pdf","title":"2015.10（上）-基于摄像头的手势控制小车","year":2015,"magazine":"中国信息技术教育","q":"2015.10 上 基于摄像头的手势控制小车"},{"file":"2015.11（上）-自制makeymakey.pdf","title":"2015.11（上）-自制makeymakey","year":2015,"magazine":"中国信息技术教育","q":"2015.11 上 自制makeymakey"},{"file":"2015.12(上）-用 Arduino 配合单摆测重力加速度.pdf","title":"2015.12(上）-用 Arduino 配合单摆测重力加速度","year":2015,"magazine":"中国信息技术教育","q":"2015.12 上 用 Arduino 配合单摆测重力加速度"},{"file":"2015.1（上）-用 S4A 体验智能家居技术.pdf","title":"2015.1（上）-用 S4A 体验智能家居技术","year":2015,"magazine":"中国信息技术教育","q":"2015.1 上 用 S4A 体验智能家居技术"},{"file":"2015.3（上）-做一个激光测距测高仪.pdf","title":"2015.3（上）-做一个激光测距测高仪","year":2015,"magazine":"中国信息技术教育","q":"2015.3 上 做一个激光测距测高仪"},{"file":"2015.4（上）-设计检测河水浊度的传感器.pdf","title":"2015.4（上）-设计检测河水浊度的传感器","year":2015,"magazine":"中国信息技术教育","q":"2015.4 上 设计检测河水浊度的传感器"},{"file":"2015.5(上）-用 Scratch 玩手势控制(上).pdf","title":"2015.5(上）-用 Scratch 玩手势控制(上)","year":2015,"magazine":"中国信息技术教育","q":"2015.5 上 用 Scratch 玩手势控制 上"},{"file":"2015.6(上）-用 Scratch 玩手势控制(下).pdf","title":"2015.6(上）-用 Scratch 玩手势控制(下)","year":2015,"magazine":"中国信息技术教育","q":"2015.6 上 用 Scratch 玩手势控制 下"},{"file":"2015.7（上）-测一测你的睡眠质量.pdf","title":"2015.7（上）-测一测你的睡眠质量","year":2015,"magazine":"中国信息技术教育","q":"2015.7 上 测一测你的睡眠质量"},{"file":"2015.8（上）-做一个“挥手机器人”.pdf","title":"2015.8（上）-做一个“挥手机器人”","year":2015,"magazine":"中国信息技术教育","q":"2015.8 上 做一个 挥手机器人"},{"file":"2015.9（上）-可触发拍照的“电子眼”.pdf","title":"2015.9（上）-可触发拍照的“电子眼”","year":2015,"magazine":"中国信息技术教育","q":"2015.9 上 可触发拍照的 电子眼"},{"file":"3D打印进课堂_看上去很美_谢作如.pdf","title":"3D打印进课堂看上去很美","year":2015,"magazine":"中国信息技术教育","q":"3D打印进课堂看上去很美"},{"file":"创客眼中的创客教育_李大维.pdf","title":"创客眼中的创客教育","year":2015,"magazine":"中国信息技术教育","q":"创客眼中的创客教育"},{"file":"机器人教育何以进入中小学课堂_李艺.pdf","title":"机器人教育何以进入中小学课堂","year":2015,"magazine":"中国信息技术教育","q":"机器人教育何以进入中小学课堂"},{"file":"2015.110410-中国教师报-给创客一个梦想实验室.pdf","title":"2015.110410-给创客一个梦想实验室","year":2015,"magazine":"中国教师报","q":"2015.110410 给创客一个梦想实验室"},{"file":"给创客一个梦想实验室_谢作如.pdf","title":"给创客一个梦想实验室","year":2015,"magazine":"中国教师报","q":"给创客一个梦想实验室"},{"file":"2015-中小学信息技术教育--让教育感受自由.pdf","title":"让教育感受自由","year":2015,"magazine":"中小学信息技术教育","q":"让教育感受自由"},{"file":"2015-6-新校长-慕课和微课之我见.pdf","title":"6-慕课和微课之我见","year":2015,"magazine":"新校长","q":"6 慕课和微课之我见"},{"file":"_物联网与大数据创意实验_课程的设计和实施_谢作如.pdf","title":"“物联网与大数据创意实验”课程的设计和实施","year":2014,"magazine":"中国信息技术教育","q":"物联网与大数据创意实验 课程的设计和实施"},{"file":"如何建设适合中小学的创客空间_以温州中学为例_谢作如.pdf","title":"如何建设适合中小学的创客空间以温州中学为例","year":2014,"magazine":"中国信息技术教育","q":"如何建设适合中小学的创客空间以温州中学为例"},{"file":"用Android控制Arduino小车_谢作如.pdf","title":"用Android控制Arduino小车","year":2014,"magazine":"中国信息技术教育","q":"用Android控制Arduino小车"},{"file":"简话_S4A和互动媒体技术_谢作如.pdf","title":"简话S4A和互动媒体技术","year":2014,"magazine":"中国信息技术教育","q":"简话S4A和互动媒体技术"},{"file":"给App插上_云服务_的翅膀_谢作如.pdf","title":"给App插上“云服务”的翅膀","year":2014,"magazine":"中国信息技术教育","q":"给App插上 云服务 的翅膀"},{"file":"让Arduino成为Android的_可穿戴设备_谢作如.pdf","title":"让Arduino成为Android的可穿戴设备","year":2014,"magazine":"中国信息技术教育","q":"让Arduino成为Android的可穿戴设备"},{"file":"跨学科_智能化的创客类校本课程开发_蒋莘.pdf","title":"跨学科智能化的创客类校本课程开发","year":2014,"magazine":"中国信息技术教育","q":"跨学科智能化的创客类校本课程开发"},{"file":"踮起脚来_你能更早看到阳光_上_从地平线报告看创客教育_吴俊杰.pdf","title":"踮起脚来“你能更早看到阳光”上从地平线报告看创客教育","year":2014,"magazine":"中国信息技术教育","q":"踮起脚来 你能更早看到阳光 上从地平线报告看创客教育"},{"file":"踮起脚来_你能更早看到阳光_下_用课程创新开启创客教育之路_吴俊杰.pdf","title":"踮起脚来“你能更早看到阳光”下用课程创新开启创客教育之路","year":2014,"magazine":"中国信息技术教育","q":"踮起脚来 你能更早看到阳光 下用课程创新开启创客教育之路"},{"file":"MIT__AppInventor_让移动应用开发更接地气_郑祥.pdf","title":"MIT——AppInventor让移动应用开发更接地气","year":2013,"magazine":"中国信息技术教育","q":"MIT AppInventor让移动应用开发更接地气"},{"file":"Processing_让编程成为一种艺术_谢作如.pdf","title":"Processing让编程成为一种艺术","year":2013,"magazine":"中国信息技术教育","q":"Processing让编程成为一种艺术"},{"file":"_虽然很困难_但我们都在努力_第_省略_学STEAM教育创新论坛_的共识_谢作如.pdf","title":"“虽然很困难”但我们都在努力“第……学STEAM教育创新论坛”的共识","year":2013,"magazine":"中国信息技术教育","q":"虽然很困难 但我们都在努力 第 学STEAM教育创新论坛 的共识"},{"file":"利用Arduino自制Scratch的传感器板_谢作如.pdf","title":"利用Arduino自制Scratch的传感器板","year":2013,"magazine":"中国信息技术教育","q":"利用Arduino自制Scratch的传感器板"},{"file":"如何让学生爱上技术_谈_互动媒体技术_课程的开发_谢作如.pdf","title":"如何让学生爱上技术“谈”互动媒体技术课程的开发","year":2013,"magazine":"中国信息技术教育","q":"如何让学生爱上技术 谈 互动媒体技术课程的开发"},{"file":"精彩的互动媒体世界_认识互动媒体技术_教学案例_谢作如.pdf","title":"精彩的互动媒体世界“认识互动媒体技术”教学案例","year":2013,"magazine":"中国信息技术教育","q":"精彩的互动媒体世界 认识互动媒体技术 教学案例"},{"file":"Scratch与我__Scratch开启互动媒体新世界_谢作如.pdf","title":"Scratch与我——Scratch开启互动媒体新世界","year":2012,"magazine":"中国信息技术教育","q":"Scratch与我 Scratch开启互动媒体新世界"},{"file":"再过若干年_信息技术课程可以不必开设吗_谢作如.pdf","title":"再过若干年信息技术课程可以不必开设吗","year":2012,"magazine":"中国信息技术教育","q":"再过若干年信息技术课程可以不必开设吗"},{"file":"让孩子融入数字时代_谢作如.pdf","title":"让孩子融入数字时代","year":2012,"magazine":"中国信息技术教育","q":"让孩子融入数字时代"},{"file":"_互动媒体技术_校本课程的探索与实践_谢作如.pdf","title":"“互动媒体技术”校本课程的探索与实践","year":2012,"magazine":"中小学信息技术教育","q":"互动媒体技术 校本课程的探索与实践"},{"file":"_录音机_中MP3文件的玄机_谢作如.pdf","title":"“录音机”中MP3文件的玄机","year":2011,"magazine":"中国信息技术教育","q":"录音机 中MP3文件的玄机"},{"file":"亮点纷呈_瑕不掩瑜_浙江省高中信_省略_课程课堂教学展示与研讨活动_评点_谢作如.pdf","title":"亮点纷呈“瑕不掩瑜”浙江省高中信……课程课堂教学展示与研讨活动评点","year":2011,"magazine":"中国信息技术教育","q":"亮点纷呈 瑕不掩瑜 浙江省高中信 课程课堂教学展示与研讨活动评点"},{"file":"信息技术必修模块是块鸡肋_谢作如.pdf","title":"信息技术必修模块是块鸡肋","year":2011,"magazine":"中国信息技术教育","q":"信息技术必修模块是块鸡肋"},{"file":"结合生活经验_注重算法的实际应用_冒泡排序_教学设计点评_谢作如.pdf","title":"结合生活经验“注重算法的实际应用”冒泡排序教学设计点评","year":2011,"magazine":"中国信息技术教育","q":"结合生活经验 注重算法的实际应用 冒泡排序教学设计点评"},{"file":"从一道高考题说起_谢作如.pdf","title":"从一道高考题说起","year":2011,"magazine":"中小学信息技术教育","q":"从一道高考题说起"},{"file":"揭开搜索技术的神秘面纱_网上资源检索_教学设计_谢作如.pdf","title":"揭开搜索技术的神秘面纱“网上资源检索”教学设计","year":2007,"magazine":"中小学信息技术教育","q":"揭开搜索技术的神秘面纱 网上资源检索 教学设计"},{"file":"追求评价与课堂教学的和谐融合_谢作如.pdf","title":"追求评价与课堂教学的和谐融合","year":2006,"magazine":"信息技术教育","q":"追求评价与课堂教学的和谐融合"},{"file":"用_计算机_学计算机_基于网络的信息技术教学模式的构想和实践_谢作如.pdf","title":"用“计算机”学计算机基于网络的信息技术教学模式的构想和实践","year":2004,"magazine":"信息技术教育","q":"用 计算机 学计算机基于网络的信息技术教学模式的构想和实践"},{"file":"随机抽取试题的四种算法_网上考试系统编制心得_谢作如.pdf","title":"随机抽取试题的四种算法网上考试系统编制心得","year":2004,"magazine":"信息技术教育","q":"随机抽取试题的四种算法网上考试系统编制心得"}];
+const CROSSIDS = "YSTT4HG0,LSTPFY1C,EMRPGLPA,JUP3MUPD,MPMFIG1A,WQ0UVIAA,BLZOG7CK,PWFIRAGL,NLBO1Z6R,NN3FJMUV";
+const KEY = "xzr-cnki-checklist-v1";
+let STORE = {};
+
+try { STORE = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { STORE = {}; }
+
+function save(){
+  try { localStorage.setItem(KEY, JSON.stringify(STORE)); } catch (e) {}
+}
+
+function groupKey(it){ return (it.year || "?") + "|" + it.magazine; }
+
+function searchUrl(it){
+  return "https://kns.cnki.net/kns8s/defaultresult/index"
+    + "?crossids=" + encodeURIComponent(CROSSIDS)
+    + "&korder=TI&kw=" + encodeURIComponent(it.q);
+}
+
+const list = document.getElementById("list");
+
+function render(){
+  const q = document.getElementById("q").value.trim().toLowerCase();
+  const onlyUndone = document.getElementById("onlyUndone").checked;
+
+  const groups = new Map();
+  for (const it of DATA){
+    const k = groupKey(it);
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(it);
+  }
+
+  let shown = 0, done = 0;
+  const html = [];
+
+  for (const [k, arr] of groups){
+    const hit = arr.filter(it => {
+      const v = (STORE[it.file] || {}).issue || "";
+      if (onlyUndone && v) return false;
+      if (!q) return true;
+      return (it.title + " " + it.file + " " + it.magazine).toLowerCase().includes(q);
+    });
+    done += arr.filter(it => (STORE[it.file] || {}).issue).length;
+    if (!hit.length) continue;
+    shown += hit.length;
+
+    const [year, mag] = k.split("|");
+    const gDone = arr.filter(it => (STORE[it.file] || {}).issue).length;
+    const shownTxt = (q || onlyUndone)
+      ? hit.length + " / " + arr.length + " 条"
+      : arr.length + " 条";
+    html.push('<section class="grp" data-g="' + esc(k) + '">'
+      + '<div class="gh"><span class="yr">' + esc(year) + '</span>'
+      + '<span class="nm">' + esc(mag) + '</span>'
+      + '<span class="n"><span class="nshow">' + shownTxt + '</span>'
+      + '<span class="ndone">' + (gDone ? ' · 已填 ' + gDone : '') + '</span></span></div>'
+      + '<div class="items">');
+
+    for (const it of hit){
+      const v = esc((STORE[it.file] || {}).issue || "");
+      html.push('<div class="row' + (v ? ' done' : '') + '" data-f="' + esc(it.file)
+        + '" data-g="' + esc(k) + '">'
+        + '<div class="ti"><div class="t" title="' + esc(it.title) + '">' + esc(it.title) + '</div>'
+        + '<div class="f">' + esc(it.file) + '</div></div>'
+        + '<input class="issue" placeholder="第 N 期" value="' + v + '">'
+        + '<span class="act"><a class="sr" target="_blank" rel="noopener" href="' + searchUrl(it) + '">查知网</a></span>'
+        + '<span class="act"><button class="cp" title="复制题名">复制</button></span>'
+        + '</div>');
+    }
+    html.push('</div></section>');
+  }
+
+  list.innerHTML = html.join("");
+  document.getElementById("cnt").textContent = "已填 " + done + " / " + DATA.length;
+  document.getElementById("fill").style.width = (DATA.length ? done / DATA.length * 100 : 0) + "%";
+
+  list.querySelectorAll(".gh").forEach(el =>
+    el.addEventListener("click", () => el.parentElement.classList.toggle("collapsed")));
+
+  list.querySelectorAll(".issue").forEach(el => {
+    el.addEventListener("input", () => {
+      const row = el.closest(".row");
+      const f = row.dataset.f;
+      const val = el.value.trim();
+      STORE[f] = STORE[f] || {};
+      STORE[f].issue = val;
+      if (!val) delete STORE[f].issue;
+      row.classList.toggle("done", !!val);
+      save();
+      const d = DATA.filter(it => (STORE[it.file] || {}).issue).length;
+      document.getElementById("cnt").textContent = "已填 " + d + " / " + DATA.length;
+      document.getElementById("fill").style.width = (d / DATA.length * 100) + "%";
+      updateGroupCount(row.dataset.g);
+    });
+  });
+
+  list.querySelectorAll(".cp").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const f = btn.closest(".row").dataset.f;
+      const it = DATA.find(x => x.file === f);
+      try { await navigator.clipboard.writeText(it.title); toast("已复制题名"); }
+      catch (e) { toast("复制失败，请手动选中"); }
+    });
+  });
+}
+
+// 某个分组已填的条数 —— 输入时就地刷新组头，避免整页重绘丢焦点
+function updateGroupCount(key){
+  let done = 0, total = 0;
+  for (const it of DATA){
+    if (groupKey(it) !== key) continue;
+    total++;
+    if ((STORE[it.file] || {}).issue) done++;
+  }
+  const sel = window.CSS && CSS.escape ? CSS.escape(key) : key;
+  const el = list.querySelector('.grp[data-g="' + sel + '"] .ndone');
+  if (el) el.textContent = done ? " · 已填 " + done + (done === total ? "（本组完成）" : "") : "";
+}
+
+function esc(s){
+  return String(s == null ? "" : s).replace(/[&<>"']/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+let toastT;
+function toast(m){
+  const el = document.getElementById("msg");
+  el.textContent = m;
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.textContent = "", 2200);
+}
+
+function buildOut(){
+  const o = {};
+  for (const it of DATA){
+    const v = (STORE[it.file] || {}).issue;
+    if (v) o[it.file] = { issue: v };
+  }
+  return o;
+}
+
+function download(name, text){
+  const blob = new Blob([text], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+}
+
+document.getElementById("exp").addEventListener("click", () => {
+  const o = buildOut();
+  const n = Object.keys(o).length;
+  if (!n) return toast("还没有填任何期号");
+  download("overrides-补期号.json", JSON.stringify(o, null, 2) + "\n");
+  toast("已导出 " + n + " 条");
+});
+
+document.getElementById("copy").addEventListener("click", async () => {
+  const o = buildOut();
+  const n = Object.keys(o).length;
+  if (!n) return toast("还没有填任何期号");
+  const text = JSON.stringify(o, null, 2);
+  const pre = document.getElementById("out");
+  pre.textContent = text;
+  pre.hidden = false;
+  pre.onclick = () => pre.hidden = true;
+  try { await navigator.clipboard.writeText(text); toast("已复制 " + n + " 条 JSON"); }
+  catch (e) { toast("请从弹出的框里手动复制"); }
+});
+
+document.getElementById("clr").addEventListener("click", () => {
+  if (!confirm("清空所有已填的期号？此操作不可撤销。")) return;
+  STORE = {}; save(); render(); toast("已清空");
+});
+
+document.getElementById("imp").addEventListener("click", () => document.getElementById("impf").click());
+document.getElementById("impf").addEventListener("change", async ev => {
+  const f = ev.target.files[0];
+  if (!f) return;
+  try {
+    const o = JSON.parse(await f.text());
+    let n = 0;
+    for (const k in o){ STORE[k] = Object.assign({}, STORE[k], o[k]); n++; }
+    save(); render(); toast("导入 " + n + " 条");
+  } catch (e) { toast("文件读不动：" + e.message); }
+  ev.target.value = "";
+});
+
+document.getElementById("q").addEventListener("input", render);
+document.getElementById("onlyUndone").addEventListener("change", render);
+
+render();
+</script>
+</body>
+</html>
